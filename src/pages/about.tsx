@@ -1,8 +1,8 @@
-import { useEffect, useRef } from 'react';
+// import { useEffect, useRef } from 'react';
 import BaseLayout from '@/layouts/BaseLayout';
 import { data } from '@/data/info';
-import { executeCommand } from '@/utils/terminalInput';
-import styles from '@/styles/terminalTS.module.css';
+// import { executeCommand } from '@/utils/terminalInput';
+// import styles from '@/styles/terminalTS.module.css';
 import { ReactElement } from 'react';
 
 function AboutPage() {
