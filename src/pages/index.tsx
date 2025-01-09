@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
-import { Loader } from '@/components/common/Loader';
-import { Day } from '@/components/conferences/Day';
-import { SubscribeToConference } from '@/components/conferences/SubscribeToConference';
-import { DEFAULT_CONFERENCE_SLUG } from '@/data/constants';
+// import { Loader } from '@/components/common/Loader';
+// import { Day } from '@/components/conferences/Day';
+// import { SubscribeToConference } from '@/components/conferences/SubscribeToConference';
+// import { DEFAULT_CONFERENCE_SLUG } from '@/data/constants';
 import { data } from '@/data/info';
 import BaseLayout from '@/layouts/BaseLayout';
-import { getDatesInRange } from '@/utils/getDatesInRange';
+// import { getDatesInRange } from '@/utils/getDatesInRange';
 import { Terminal } from '@/utils/terminalTS';
 import { ReactElement } from 'react';
 

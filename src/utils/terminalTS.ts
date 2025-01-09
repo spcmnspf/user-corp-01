@@ -1,4 +1,3 @@
-import { data } from '../data/info';
 import styles from '../styles/terminalTS.module.css';
 import { executeCommand } from './terminalInput';
 

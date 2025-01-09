@@ -6,66 +6,7 @@ import styles from '@/styles/terminalTS.module.css';
 import { ReactElement } from 'react';
 
 function AboutPage() {
-  const terminalRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (terminalRef.current) {
-      terminalRef.current.innerHTML = `
-        <div class="${styles.terminalBody}">
-          <div class="${styles.terminalOutput}"></div>
-          <div class="${styles.terminalInputLine}">
-            <span class="${styles.prompt}">&gt;</span>
-            <input type="text" class="${styles.terminalInput}" spellcheck="false" autocomplete="off">
-          </div>
-        </div>
-      `;
-
-      const outputElement = terminalRef.current.querySelector(`.${styles.terminalOutput}`) as HTMLElement;
-      const inputElement = terminalRef.current.querySelector(`.${styles.terminalInput}`) as HTMLInputElement;
-
-      const print = (text: string, type = styles.output) => {
-        const lines = text.split('\n');
-        lines.forEach(lineText => {
-          const line = document.createElement('div');
-          line.className = `${styles.terminalLine} ${type}`;
-          line.textContent = lineText;
-          outputElement.appendChild(line);
-          terminalRef.current!.scrollTop = terminalRef.current!.scrollHeight;
-          outputElement.scrollTop = outputElement.scrollHeight;
-        });
-        requestAnimationFrame(() => {
-          terminalRef.current!.scrollTop = terminalRef.current!.scrollHeight;
-          outputElement.scrollTop = outputElement.scrollHeight;
-        });
-      };
-
-      const printWelcome = () => {
-        print('Welcome to the About Page Terminal...', styles.centered);
-        print('Type "help" for available commands.', styles.centered);
-      };
-
-      const executeCommandHandler = (command: string) => {
-        print(`> ${command}`, styles.command);
-        executeCommand(command);
-      };
-
-      inputElement.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          const command = inputElement.value?.trim();
-          if (command) {
-            executeCommandHandler(command);
-            inputElement.value = '';
-          }
-        }
-      });
-
-      inputElement.focus();
-      terminalRef.current.addEventListener('click', () => inputElement.focus());
-
-      printWelcome();
-    }
-  }, []);
+  
 
   return (
     <div className="flex flex-col max-w-2xl mx-auto my-6 text-center">
@@ -124,7 +65,6 @@ function AboutPage() {
         {data.pageTitle}
       </h1>
       <p className="pt-2 text-center">{data.description}</p>
-      <div ref={terminalRef} className={styles.terminalContainer}></div>
     </div>
   );
 }

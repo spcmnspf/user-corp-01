@@ -1,3 +1,5 @@
+import { data } from '../data/info';
+
 type CommandAction = (args?: string[]) => void;
 
 interface Command {
@@ -120,7 +122,7 @@ function getCurrentTime() {
 }
 
 function getVersionInfo() {
-    return 'System version: 1.0.0\nBuild: 20231001';
+    return `System version: ${data.version}\nBuild: ${data.build}`;
 }
 
 function terminateSession() {
