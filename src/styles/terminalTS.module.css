@@ -1,26 +1,5 @@
-/* Set minimum heights for terminal components */
-.terminal {
-    height: calc(100% - 24px);
-    color: #006400; /* Dark green terminal console color */
-    font-family: 'Inconsolata', monospace;
-    font-size: 1rem;
-    line-height: 1.4;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end; /* Anchor input at the bottom */
-}
-
-.terminal-header {
-    height: 24px;
-    padding: 0.25rem 1rem;
-    background: #1a1a1a;
-    color: #33ff33;
-    font-size: 1rem;
-    font-weight: bold;
-}
-
-/* Improved spacing and layout */
-.terminal-body {
+/* terminalTS.module.css */
+.terminalBody {
     position: relative;
     height: 100%;
     display: flex;
@@ -29,55 +8,14 @@
     background: rgba(0, 0, 0, 0.9);
 }
 
-.terminal-body::-webkit-scrollbar {
-    width: 8px;
-}
-
-.terminal-body::-webkit-scrollbar-thumb {
-    background-color: #444;
-    border-radius: 4px;
-}
-
-/* Adjusted body margin to accommodate terminal */
-.terminal-container {
-    width: min(90vw, 1200px);
-    height: 600px;
-    margin: 2rem auto;
-    background: rgba(0, 0, 0, 0.9);
-    border: 1px solid #00fff2;
-    border-radius: 4px;
-    box-shadow: 0 0 20px rgba(0, 255, 242, 0.2);
-    overflow: hidden;
-    text-align: left;  /* Force left alignment */
-    display: flex;
-    flex-direction: column;
-}
-
-.terminal-output {
+.terminalOutput {
     flex: 1;
     overflow-y: auto;
     padding: 0.5rem;
     margin-bottom: 40px; /* Fixed space for input line */
 }
 
-.terminal-line {
-    margin: 0.25rem 0;
-    white-space: pre-wrap;
-    text-align: left;
-    padding-left: 0.5rem;
-    color: #006400; /* Dark green terminal console color */
-}
-
-.terminal-line.centered {
-    text-align: center;
-    padding-left: 0;
-}
-
-.terminal-line.command {
-    color: #00cc00; /* Input command color - slightly darker */
-}
-
-.terminal-input-line {
+.terminalInputLine {
     position: absolute;
     bottom: 0;
     left: 0;
@@ -90,10 +28,10 @@
     border-top: 1px solid rgba(0, 255, 242, 0.2);
 }
 
-.terminal-input {
+.terminalInput {
     background: transparent;
     border: none;
-    color: #00ff00; /* Bright green for current input */
+    color: #00cc00; /* Bright green for current input */
     font-family: 'Inconsolata', monospace;
     font-size: 0.9rem;
     flex-grow: 1;
@@ -101,30 +39,29 @@
 }
 
 .prompt {
-    color: #33ff33;
+    color: #00cc00;
     user-select: none;
 }
 
-/* Local class to apply body styles */
-.terminal-body-container {
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #222;
+/* terminalTS.module.css */
+.terminalLine {
+    margin: 0.25rem 0;
+    white-space: pre-wrap;
+    text-align: left;
+    padding-left: 0.5rem;
+    color: #00cc00; /* Moved text color to CSS */
 }
 
-/* terminalTS.module.css */
-.terminalInput {
-    /* Add your desired styles here */
-    color: darkgreen;
-    background-color: black;
-    border: none;
-    outline: none;
-    width: 100%;
-    padding: 5px;
-    font-family: monospace;
-    font-size: 14px;
+.terminalLine.centered {
+    text-align: center;
+    padding-left: 0;
 }
+
+.terminalLine.command {
+    color: #00cc00; /* Input command color - slightly darker */
+}
+
+
+/* .local {
+    /* Add any additional styles for the local class here
+} */

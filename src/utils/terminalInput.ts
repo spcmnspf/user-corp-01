@@ -1,6 +1,6 @@
 import { data } from '../data/info';
 
-type CommandAction = (args?: string[]) => void;
+type CommandAction = (args?: string[], print?: (text: string, type?: string) => void) => void;
 
 interface Command {
     command: string;
@@ -9,17 +9,18 @@ interface Command {
     action: CommandAction;
 }
 
+// Update the help command action to use the print function
 const commands: Command[] = [
     {
         command: 'help',
         desc: 'Show this help message',
         hidden: false,
-        action: () => {
+        action: (args, print) => {
             const helpText = commands
                 .filter(cmd => !cmd.hidden)
                 .map(cmd => `  ${cmd.command.padEnd(10)} - ${cmd.desc}`)
                 .join('\n');
-            console.log(`Available commands:\n${helpText}`);
+            print(`Available commands:\n${helpText}`);
         },
     },
     {
@@ -98,13 +99,14 @@ const commands: Command[] = [
     },
 ];
 
-export function executeCommand(input: string): void {
+// Update the executeCommand function to accept a print function
+export function executeCommand(input: string, print: (text: string, type?: string) => void): void {
     const [cmd, ...args] = input.split(' ');
     const command = commands.find(c => c.command === cmd);
     if (command) {
-        command.action(args);
+        command.action(args, print);
     } else {
-        console.log(`Command "${input}" not found.`);
+        print(`Command "${input}" not found.`);
     }
 }
 

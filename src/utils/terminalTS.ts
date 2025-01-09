@@ -29,6 +29,9 @@ export class Terminal {
         this.outputElement = this.container.querySelector(`.${styles.terminalOutput}`) as HTMLElement;
         this.inputElement = this.container.querySelector(`.${styles.terminalInput}`) as HTMLInputElement;
     
+        console.log('Output Element:', this.outputElement); // Debugging line
+        console.log('Input Element:', this.inputElement); // Debugging line
+    
         if (!this.inputElement) {
             console.error('Input element not found'); // Debugging line
         } else {
@@ -40,7 +43,6 @@ export class Terminal {
     }
     
     
-    
 
     printWelcome() {
         this.print('Terminal initialized...', styles.centered);
@@ -48,13 +50,14 @@ export class Terminal {
     }
 
     print(text: string, type = styles.output) {
+        console.log('Printing text:', text); // Debugging line
         const lines = text.split('\n');
         lines.forEach(lineText => {
             const line = document.createElement('div');
             line.className = `${styles.terminalLine} ${type}`;
             line.textContent = lineText;
-            line.style.color = 'darkgreen'; // Change text color to dark green
             this.outputElement.appendChild(line);
+            console.log('Appended line:', line); // Debugging line
             // Force scroll after each line
             this.container.scrollTop = this.container.scrollHeight;
             this.outputElement.scrollTop = this.outputElement.scrollHeight;
@@ -65,6 +68,9 @@ export class Terminal {
             this.outputElement.scrollTop = this.outputElement.scrollHeight;
         });
     }
+    
+    
+    
 
     setupEventListeners() {
         this.inputElement.addEventListener('keydown', (e) => {
@@ -82,15 +88,14 @@ export class Terminal {
                 }
             }
         });
-    
+
         this.inputElement.focus();
         this.container.addEventListener('click', () => this.inputElement.focus());
     }
-    
-    
 
+    // Update the Terminal class to pass the print function to executeCommand
     executeCommand(command: string) {
-        this.print(`> ${command}`, styles.command);
-        executeCommand(command);
-    }
+    this.print(`> ${command}`, styles.command);
+    executeCommand(command, this.print.bind(this));
+}
 }
