@@ -2,18 +2,25 @@ import { useAuthenticationStatus, useSignOut } from '@nhost/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { twMerge } from 'tailwind-merge';
+import { useEffect, useState } from 'react';
+import { generateNodeName } from '@/utils/generateNodeName';
 
 export function Header() {
   const { asPath } = useRouter();
   const { isLoading, isAuthenticated } = useAuthenticationStatus();
   const { signOut } = useSignOut();
+  const [nodeName, setNodeName] = useState('');
+
+  useEffect(() => {
+    setNodeName(generateNodeName());
+  }, []);
 
   return (
     <header className="sticky border-b bg-header border-b-brd">
       <div className="flex flex-row max-w-5xl p-4 mx-auto place-content-between">
         <Link href="/" passHref>
           <a className="self-center font-medium text-white text-md hover:underline">
-            Conference Template
+            {nodeName}
           </a>
         </Link>
 
@@ -22,7 +29,7 @@ export function Header() {
           aria-label="Main navigation"
         >
           <ul className="grid items-center w-full grid-flow-col gap-2 text-sm font-medium list-none text-list">
-            <li
+            {/* <li
               className={twMerge(
                 'hover:text-white',
                 asPath === '/' && 'text-white',
@@ -53,7 +60,7 @@ export function Header() {
               <Link href="/talks" passHref>
                 <a className="px-2">Talks</a>
               </Link>
-            </li>
+            </li> */}
 
             <li
               className={twMerge(
