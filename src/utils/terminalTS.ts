@@ -54,7 +54,7 @@ const Terminal: React.FC<{ container: HTMLElement }> = ({ container }) => {
             print('Terminal initialized...', `${styles.centered} welcome-message`);
             print('Type "help" for available commands.', `${styles.centered} welcome-message`);
         };
-
+    
         const setupEventListeners = () => {
             inputElement.current?.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
@@ -67,11 +67,11 @@ const Terminal: React.FC<{ container: HTMLElement }> = ({ container }) => {
                     }
                 }
             });
-
+    
             inputElement.current?.focus();
             container.addEventListener('click', () => inputElement.current?.focus());
         };
-
+    
         const setupTerminal = () => {
             container.innerHTML = `
                 <div class="${styles.terminalBody} ${styles.local}">
@@ -82,17 +82,17 @@ const Terminal: React.FC<{ container: HTMLElement }> = ({ container }) => {
                     </div>
                 </div>
             `;
-
+    
             outputElement.current = container.querySelector(`.${styles.terminalOutput}`) as HTMLElement;
             inputElement.current = container.querySelector(`.${styles.terminalInput}`) as HTMLInputElement;
-
+    
             setupEventListeners();
             printWelcome();
         };
-
+    
         commands.current = getCommands(terminateSession);
         setupTerminal();
-    }, [terminateSession, container]); // Add dependencies if needed
+    }, [terminateSession, container, executeCommandHandler, print]); // Add executeCommandHandler and print to the dependency array
 
     return null; // Since this component doesn't render anything directly
 };
