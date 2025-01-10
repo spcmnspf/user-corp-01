@@ -39,6 +39,15 @@ const Terminal: React.FC<{ container: HTMLElement }> = ({ container }) => {
     };
 
     const print = (text: string, type: string = styles.output) => {
+        if (type === 'clear') {
+            // Clear the terminal output
+            if (outputElement.current) {
+                outputElement.current.innerHTML = ''; // Clear all content
+            }
+            return;
+        }
+
+        // Normal output
         const lines = text.split('\n');
         lines.forEach(lineText => {
             const line = document.createElement('div');
@@ -48,6 +57,7 @@ const Terminal: React.FC<{ container: HTMLElement }> = ({ container }) => {
             container.scrollTop = container.scrollHeight;
             outputElement.current!.scrollTop = outputElement.current!.scrollHeight;
         });
+
         requestAnimationFrame(() => {
             container.scrollTop = container.scrollHeight;
             outputElement.current!.scrollTop = outputElement.current!.scrollHeight;
@@ -74,7 +84,6 @@ const Terminal: React.FC<{ container: HTMLElement }> = ({ container }) => {
     const executeCommandHandler = (command: string) => {
         print(`> ${command}`, styles.command);
 
-        // Call the imported executeCommand function with the correct arguments
         executeCommand(
             command,
             (text: string, type?: string) => {
