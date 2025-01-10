@@ -78,8 +78,11 @@ const commands: Command[] = [
         desc: 'Login to system',
         hidden: false,
         action: (args, print) => {
-            print('Opening login modal...');
-            // openModal();
+            print('Authenticating user...');
+            setTimeout(() => {
+                (window as any).openLoginModal(); // Trigger the login modal
+            }, 1000);
+            
         },
     },
     {
@@ -123,9 +126,29 @@ export function executeCommand(input: string, print: (text: string, type?: strin
 }
 
 // Placeholder functions for command actions
+// async function getStatus() {
+//     return 'System status: All systems operational.';
+// }
+
 async function getStatus() {
-    return 'System status: All systems operational.';
+    try {
+        const { data: { session } } = await isAuthenticated();
+        if (!session) {
+            return 'System status: No user logged in. Please issue the "whoami" command for more information.';
+        }
+
+        const availableCmds = Object.entries(commands)
+            // .filter(([_, cmd]) => cmd.requireAuth)
+            .map(([name, _]) => name)
+            .join('", "');
+            
+        return `System status: All systems operational.\nAvailable secure commands: "${availableCmds}"`;
+    } catch (error) {
+        console.error('Error getting status:', error);
+        return 'Error: Could not fetch system status.';
+    }
 }
+
 
 async function getUserInfo() {
     return 'User: Not authenticated\nPlease use the "login" command to authenticate.';
@@ -150,3 +173,7 @@ function hackSystem() {
 function extractData() {
     console.log('Extracting data...');
 }
+function isAuthenticated(): { data: { session: any; }; } | PromiseLike<{ data: { session: any; }; }> {
+    throw new Error('Function not implemented.');
+}
+

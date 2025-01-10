@@ -3,6 +3,12 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { twMerge } from 'tailwind-merge';
 import { useEffect, useState } from 'react';
+
+declare global {
+  interface Window {
+    openLoginModal: () => void;
+  }
+}
 import { generateNodeName } from '@/utils/generateNodeName';
 import Modal from 'react-modal'; // Correct import statement
 import { nhost } from '@/utils/nhost'; // Make sure to import nhost
@@ -23,6 +29,11 @@ export function Header() {
     if (typeof window !== 'undefined') {
       Modal.setAppElement('#__next'); // Set the app element for accessibility
     }
+  }, []);
+
+  useEffect(() => {
+    // Expose the function to open the modal globally
+    window.openLoginModal = () => setIsModalOpen(true);
   }, []);
 
   const handleLogin = async () => {
@@ -132,11 +143,12 @@ export function Header() {
 
           {!isAuthenticated && !isLoading && (
             <div className="grid items-center grid-flow-col gap-2 md:gap-4">
-              <Link href="/sign-in" passHref>
+              {/* Hide the Sign In link */}
+              {/* <Link href="/sign-in" passHref>
                 <a className="flex items-center self-end justify-center w-full px-2 py-1 text-xs transition-colors duration-200 border rounded-md text-list hover:border-white hover:text-white border-list">
                   Sign In
                 </a>
-              </Link>
+              </Link> */}
               <button
                 onClick={() => setIsModalOpen(true)}
                 className="flex items-center self-end justify-center w-full px-2 py-1 text-xs transition-colors duration-200 border rounded-md text-list hover:border-white hover:text-white border-list"
