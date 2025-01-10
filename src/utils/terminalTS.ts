@@ -10,10 +10,6 @@ const Terminal: React.FC<{ container: HTMLElement }> = ({ container }) => {
     const commands = useRef<Command[]>([]);
     const terminateSession = useTerminateSession();
 
-    useEffect(() => {
-        commands.current = getCommands(terminateSession);
-        setupTerminal();
-    }, [terminateSession]);
 
     const setupTerminal = () => {
         container.innerHTML = `
@@ -93,6 +89,11 @@ const Terminal: React.FC<{ container: HTMLElement }> = ({ container }) => {
             commands.current
         );
     };
+
+    useEffect(() => {
+        commands.current = getCommands(terminateSession);
+        setupTerminal();
+    }, [terminateSession, setupTerminal]); // Add setupTerminal to the dependency array
 
     return null; // Since this component doesn't render anything directly
 };
