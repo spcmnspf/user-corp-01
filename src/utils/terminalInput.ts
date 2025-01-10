@@ -1,6 +1,7 @@
 import styles from '../styles/terminalTS.module.css';
 import { data } from '../data/info';
 import { nhost } from '../utils/nhost'; // Adjust the import path as needed
+import { useSignOut } from '@nhost/react';
 
 
 
@@ -164,8 +165,15 @@ function getVersionInfo() {
     return `SassyOS ${data.version}\n\n  S)ecure\n  A)uthentication\n  S)ystem\n  S)ynced\n  Y)esterday\n\nBuild: ${data.build}`;
 }
 
-function terminateSession() {
-    console.log('Session terminated successfully.');
+function terminateSession(this: any) {
+    this.print('Initiating session termination...', 'output');
+    setTimeout(() => {
+        console.log('Clearing authentication tokens...');
+    }, 1000);
+    useSignOut();
+    setTimeout(() => {
+        console.log('Session terminated successfully.');
+    }, 2000);
 }
 
 function hackSystem() {
