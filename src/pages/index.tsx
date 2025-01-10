@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'; // Add useRef
+import { useEffect, useRef, useState } from 'react'; // Add useState
 import { data } from '@/data/info';
 import BaseLayout from '@/layouts/BaseLayout';
 import Terminal from '@/utils/terminalTS'; // Updated import
@@ -7,6 +7,7 @@ import { ReactElement } from 'react';
 
 function IndexPage() {
   const terminalContainerRef = useRef<HTMLDivElement | null>(null); // Ref for the terminal container
+  const [isTerminalMounted, setIsTerminalMounted] = useState(false); // State to track terminal mount
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -33,20 +34,26 @@ function IndexPage() {
       // Store the container in the ref
       terminalContainerRef.current = terminalContainer;
 
-      // Render the Terminal component
-      <Terminal container={terminalContainer} />;
+      // Set the terminal as mounted
+      setIsTerminalMounted(true);
 
       // Cleanup function
       return () => {
         if (terminalContainerRef.current) {
           document.body.removeChild(terminalContainerRef.current);
         }
+        setIsTerminalMounted(false); // Reset terminal mount state
       };
     }
   }, []);
 
   return (
     <>
+      {/* Render the Terminal component if the container is mounted */}
+      {isTerminalMounted && terminalContainerRef.current && (
+        <Terminal container={terminalContainerRef.current} />
+      )}
+
       <div className="grid grid-flow-row gap-2 py-4 text-center sm:py-8">
         <h1 className="text-dim text-[44px] sm:text-[68px] font-semibold leading-tight drop-shadow-sm">
           <span className="stroke">
