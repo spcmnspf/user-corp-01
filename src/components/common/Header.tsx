@@ -2,12 +2,11 @@ import { useAuthenticationStatus, useSignOut } from '@nhost/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { twMerge } from 'tailwind-merge';
-import { useEffect, useState, useRef } from 'react'; // Add useRef
+import { useEffect, useState, useRef } from 'react';
 import Modal from 'react-modal';
 import { nhost } from '@/utils/nhost';
-import Terminal from '@/utils/terminalTS'; // Import Terminal
 import { generateNodeName } from '@/utils/generateNodeName';
-
+import Terminal from '@/utils/terminalTS';
 
 declare global {
   interface Window {
@@ -21,7 +20,7 @@ export function Header() {
   const { signOut } = useSignOut();
   const [nodeName, setNodeName] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const terminalContainerRef = useRef<HTMLDivElement | null>(null); // Ref for the terminal container
+  const terminalContainerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     setNodeName(generateNodeName());
@@ -29,7 +28,7 @@ export function Header() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      Modal.setAppElement('#__next'); // Set the app element for accessibility
+      Modal.setAppElement('#__next');
     }
   }, []);
 
@@ -38,64 +37,14 @@ export function Header() {
     window.openLoginModal = () => setIsModalOpen(true);
   }, []);
 
-
-  const handleLogin = async (retries = 3) => {
-    const timeoutDuration = 10000; // 10 seconds
-
+  const handleLogin = async () => {
     try {
-        // Create a timeout promise
-        const timeoutPromise = new Promise<never>((_, reject) => {
-            setTimeout(() => {
-                reject(new Error('Authentication timed out'));
-            }, timeoutDuration);
-        });
-
-        // Race the signIn call against the timeout
-        const response = await Promise.race([
-            nhost.auth.signIn({ provider: 'google' }),
-            timeoutPromise,
-        ]);
-
-        // Use type assertion to define the shape of the response
-        if ((response as { error?: { message: string } }).error) {
-            throw new Error((response as { error: { message: string } }).error.message);
-        }
-
-        console.log('Authentication successful:', response);
+      await nhost.auth.signIn({
+        provider: 'google',
+      });
+      setIsModalOpen(false);
     } catch (error) {
-        if (retries > 0) {
-            console.log(`Retrying authentication... Attempts left: ${retries}`);
-            await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait 2 seconds before retrying
-            return handleLogin(retries - 1);
-        } else {
-            console.error('Authentication failed after multiple attempts:', error);
-        }
-    }
-};
-
-  const initializeTerminal = () => {
-    if (terminalContainerRef.current) {
-      // Render the Terminal component inside the container
-      terminalContainerRef.current.innerHTML = ''; // Clear any existing content
-      const terminalContainer = document.createElement('div');
-      terminalContainer.className = 'terminal-container'; // Add class for blurring effect
-      terminalContainer.style.position = 'fixed';
-      terminalContainer.style.top = '50%';
-      terminalContainer.style.left = '50%';
-      terminalContainer.style.transform = 'translate(-50%, -50%)';
-      terminalContainer.style.width = '80%';
-      terminalContainer.style.height = '60%';
-      terminalContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
-      terminalContainer.style.border = '1px solid #00fff2';
-      terminalContainer.style.borderRadius = '4px';
-      terminalContainer.style.boxShadow = '0 0 20px rgba(0, 255, 242, 0.2)';
-      terminalContainer.style.overflow = 'hidden';
-      terminalContainer.style.zIndex = '999'; // Ensure terminal has a lower z-index than the modal
-      terminalContainer.style.padding = '10px';
-      terminalContainerRef.current.appendChild(terminalContainer);
-
-      // Render the Terminal component
-      <Terminal container={terminalContainer} />;
+      console.error('Error during sign-in:', error);
     }
   };
 
@@ -113,6 +62,7 @@ export function Header() {
           aria-label="Main navigation"
         >
           <ul className="grid items-center w-full grid-flow-col gap-2 text-sm font-medium list-none text-list">
+            {/* Example navigation item */}
             <li
               className={twMerge(
                 'hover:text-white',
@@ -178,16 +128,18 @@ export function Header() {
         }}
       >
         <h2 className="text-lg font-bold">Login</h2>
-        // In your JSX
-<button
-    onClick={(event) => {
-        event.preventDefault(); // Prevent default button behavior (optional)
-        handleLogin(); // Call handleLogin without passing the event
-    }}
-    className="flex items-center self-end justify-center w-full px-2 py-1 text-xs transition-colors duration-200 border rounded-md text-list hover:border-white hover:text-white border-list"
->
-    Login
-</button>
+        <button
+          onClick={handleLogin}
+          className="px-4 py-2 mt-4 text-white bg-blue-500 rounded hover:bg-blue-700"
+        >
+          Login with Google
+        </button>
+        <button
+          onClick={() => setIsModalOpen(false)}
+          className="px-4 py-2 mt-4 text-white bg-gray-500 rounded hover:bg-gray-700"
+        >
+          Close
+        </button>
       </Modal>
 
       <style jsx global>{`
