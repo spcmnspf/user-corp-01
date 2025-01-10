@@ -43,7 +43,7 @@ const commands: Command[] = [
         desc: 'Show system status',
         hidden: false,
         action: (args, print) => {
-            const status = getStatus();
+            const status = useGetStatus();
             print(status);
         },
     },
@@ -136,7 +136,7 @@ function useAuthStatus() {
     }
 }
 
-function getStatus() {
+function useGetStatus() {
     return useAuthStatus();
 }
 
