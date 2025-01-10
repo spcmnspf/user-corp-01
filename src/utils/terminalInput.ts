@@ -1,12 +1,9 @@
-import styles from '../styles/terminalTS.module.css';
-import { data } from '../data/info';
-import { nhost } from '../utils/nhost'; // Adjust the import path as needed
+import { useState } from 'react';
 import { useSignOut } from '@nhost/react';
+import { data } from '../data/info';
+import { nhost } from '../utils/nhost';
 
-
-
-
-
+// Define types
 type CommandAction = (args?: string[], print?: (text: string, type?: string) => void) => void;
 
 interface Command {
@@ -16,7 +13,7 @@ interface Command {
     action: CommandAction;
 }
 
-// Update the commands to use the print function
+// Define the commands array
 const commands: Command[] = [
     {
         command: 'help',
@@ -35,14 +32,7 @@ const commands: Command[] = [
         desc: 'Clear terminal',
         hidden: false,
         action: (args, print) => {
-            const outputElement = document.querySelector(`.${styles.terminalOutput}`) as HTMLElement;
-            if (outputElement) {
-                // Preserve welcome messages
-                const welcomeMessages = Array.from(outputElement.children).slice(0, 2);
-                outputElement.innerHTML = '';
-                welcomeMessages.forEach(message => outputElement.appendChild(message));
-            }
-            print('Terminal cleared.');
+            print('Terminal cleared.', 'clear');
         },
     },
     {
@@ -50,7 +40,7 @@ const commands: Command[] = [
         desc: 'Show system status',
         hidden: false,
         action: async (args, print) => {
-            const status = await getStatus();
+            const status = await getStatus(commands);
             print(status);
         },
     },
@@ -86,7 +76,8 @@ const commands: Command[] = [
         action: (args, print) => {
             print('Authenticating user...');
             setTimeout(() => {
-                (window as any).openLoginModal(); // Trigger the login modal
+                // Use a state or context to open the login modal
+                (window as any).openLoginModal(); // Replace with a React-friendly approach
             }, 1000);
         },
     },
@@ -94,9 +85,8 @@ const commands: Command[] = [
         command: 'terminate',
         desc: 'Terminate session',
         hidden: false,
-        action: (args, print) => {
-            terminateSession();
-            print('Session terminated successfully.');
+        action: async (args, print) => {
+            await terminateSession(print);
         },
     },
     {
@@ -119,8 +109,12 @@ const commands: Command[] = [
     },
 ];
 
-// Update the executeCommand function to accept a print function
-export function executeCommand(input: string, print: (text: string, type?: string) => void): void {
+// Define executeCommand as a standalone function
+export function executeCommand(
+    input: string,
+    print: (text: string, type?: string) => void,
+    commands: Command[]
+): void {
     const [cmd, ...args] = input.split(' ');
     const command = commands.find(c => c.command === cmd);
     if (command) {
@@ -130,25 +124,25 @@ export function executeCommand(input: string, print: (text: string, type?: strin
     }
 }
 
-
-
-
-async function getStatus() {
+// Helper functions
+async function getStatus(commands: Command[]) {
     const isAuthenticated = nhost.auth.isAuthenticated();
     if (isAuthenticated) {
-        const availableCommands = commands.filter(cmd => cmd.hidden).map(cmd => cmd.command).join(', ');
+        const availableCommands = commands
+            .filter(cmd => cmd.hidden)
+            .map(cmd => cmd.command)
+            .join(', ');
         return 'System status: All systems operational.\nAvailable secure commands: ' + availableCommands;
     } else {
         return 'System status: User is not authenticated. Please log in using the "login" command.';
     }
 }
 
-
 async function getUserInfo() {
     try {
-        const userName = nhost.auth.getUser();
-        if (userName) {
-            return 'User: '+ userName.displayName +'\nPlease use the "terminate" command to log out.';
+        const user = nhost.auth.getUser();
+        if (user) {
+            return `User: ${user.displayName}\nPlease use the "terminate" command to log out.`;
         }
         return 'User: Not authenticated\nPlease use the "login" command to authenticate.';
     } catch (error) {
@@ -165,16 +159,16 @@ function getVersionInfo() {
     return `SassyOS ${data.version}\n\n  S)ecure\n  A)uthentication\n  S)ystem\n  S)ynced\n  Y)esterday\n\nBuild: ${data.build}`;
 }
 
-function terminateSession(this: any) {
-    const { signOut } = useSignOut()
-
-    this.print('Initiating session termination...', 'output');
+async function terminateSession(print: (text: string, type?: string) => void) {
+    const { signOut } = useSignOut();
+    print('Initiating session termination...');
     setTimeout(() => {
         console.log('Clearing authentication tokens...');
     }, 1000);
-    signOut();
+    await signOut();
     setTimeout(() => {
         console.log('Session terminated successfully.');
+        print('Session terminated successfully.');
     }, 2000);
 }
 
@@ -185,3 +179,26 @@ function hackSystem() {
 function extractData() {
     console.log('Extracting data...');
 }
+
+// Define the useTerminal hook
+const useTerminal = () => {
+    const { signOut } = useSignOut();
+    const [output, setOutput] = useState<string[]>([]);
+
+    const print = (text: string, type?: string) => {
+        if (type === 'clear') {
+            setOutput([]);
+        } else {
+            setOutput(prev => [...prev, text]);
+        }
+    };
+
+    const handleCommand = (input: string) => {
+        executeCommand(input, print, commands);
+    };
+
+    return { output, handleCommand };
+};
+
+// Export everything
+export { useTerminal, commands };

@@ -1,5 +1,5 @@
 import styles from '../styles/terminalTS.module.css';
-import { executeCommand } from './terminalInput';
+import { executeCommand, commands } from './terminalInput'; // Import `commands` from terminalInput
 
 export class Terminal {
     container: HTMLElement;
@@ -25,31 +25,29 @@ export class Terminal {
                 </div>
             </div>
         `;
-    
+
         this.outputElement = this.container.querySelector(`.${styles.terminalOutput}`) as HTMLElement;
         this.inputElement = this.container.querySelector(`.${styles.terminalInput}`) as HTMLInputElement;
-    
+
         console.log('Output Element:', this.outputElement); // Debugging line
         console.log('Input Element:', this.inputElement); // Debugging line
-    
+
         if (!this.inputElement) {
             console.error('Input element not found'); // Debugging line
         } else {
             console.log('Input Element:', this.inputElement); // Debugging line
         }
-    
+
         this.setupEventListeners();
         this.printWelcome();
     }
-    
-    
 
     printWelcome() {
         this.print('Terminal initialized...', styles.centered);
         this.print('Type "help" for available commands.', styles.centered);
     }
 
-    print(text: string, type = styles.output) {
+    print(text: string, type: string = styles.output) {
         console.log('Printing text:', text); // Debugging line
         const lines = text.split('\n');
         lines.forEach(lineText => {
@@ -68,9 +66,6 @@ export class Terminal {
             this.outputElement.scrollTop = this.outputElement.scrollHeight;
         });
     }
-    
-    
-    
 
     setupEventListeners() {
         this.inputElement.addEventListener('keydown', (e) => {
@@ -93,9 +88,17 @@ export class Terminal {
         this.container.addEventListener('click', () => this.inputElement.focus());
     }
 
-    // Update the Terminal class to pass the print function to executeCommand
+    // Update the executeCommand method to pass the commands array
     executeCommand(command: string) {
-    this.print(`> ${command}`, styles.command);
-    executeCommand(command, this.print.bind(this));
-}
+        this.print(`> ${command}`, styles.command);
+
+        // Pass the print function and commands array to executeCommand
+        executeCommand(
+            command,
+            (text: string, type?: string) => {
+                this.print(text, type || styles.output);
+            },
+            commands // Pass the commands array as the third argument
+        );
+    }
 }
