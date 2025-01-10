@@ -166,11 +166,13 @@ function getVersionInfo() {
 }
 
 function terminateSession(this: any) {
+    const { signOut } = useSignOut()
+
     this.print('Initiating session termination...', 'output');
     setTimeout(() => {
         console.log('Clearing authentication tokens...');
     }, 1000);
-    useSignOut();
+    signOut();
     setTimeout(() => {
         console.log('Session terminated successfully.');
     }, 2000);
