@@ -133,16 +133,25 @@ export function executeCommand(input: string, print: (text: string, type?: strin
 async function getStatus() {
     const isAuthenticated = nhost.auth.isAuthenticated();
     if (isAuthenticated) {
-        return 'System status: User is authenticated with Google.';
+        const availableCommands = commands.filter(cmd => !cmd.hidden).map(cmd => cmd.command).join(', ');
+        return 'System status: All systems operational.\nAvailable secure commands: ' + availableCommands;
     } else {
         return 'System status: User is not authenticated. Please log in using the "login" command.';
     }
 }
 
-
-
 async function getUserInfo() {
-    return 'User: Not authenticated\nPlease use the "login" command to authenticate.';
+    try {
+        const session = nhost.auth.getSession();
+        if (session) {
+            const user = session.user;
+            return 'User: '+ user +'\nPlease use the "terminate" command to log out.';
+        }
+        return 'User: Not authenticated\nPlease use the "login" command to authenticate.';
+    } catch (error) {
+        console.error('Error getting user info:', error);
+        return 'Error: Could not fetch user information.';
+    }
 }
 
 function getCurrentTime() {
