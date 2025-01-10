@@ -8,6 +8,7 @@ import { nhost } from '@/utils/nhost';
 import Terminal from '@/utils/terminalTS'; // Import Terminal
 import { generateNodeName } from '@/utils/generateNodeName';
 
+
 declare global {
   interface Window {
     openLoginModal: () => void;
@@ -37,17 +38,40 @@ export function Header() {
     window.openLoginModal = () => setIsModalOpen(true);
   }, []);
 
-  const handleLogin = async () => {
+
+  const handleLogin = async (retries = 3) => {
+    const timeoutDuration = 10000; // 10 seconds
+
     try {
-      await nhost.auth.signIn({
-        provider: 'google',
-      });
-      setIsModalOpen(false);
-      initializeTerminal(); // Initialize terminal after login
+        // Create a timeout promise
+        const timeoutPromise = new Promise<never>((_, reject) => {
+            setTimeout(() => {
+                reject(new Error('Authentication timed out'));
+            }, timeoutDuration);
+        });
+
+        // Race the signIn call against the timeout
+        const response = await Promise.race([
+            nhost.auth.signIn({ provider: 'google' }),
+            timeoutPromise,
+        ]);
+
+        // Use type assertion to define the shape of the response
+        if ((response as { error?: { message: string } }).error) {
+            throw new Error((response as { error: { message: string } }).error.message);
+        }
+
+        console.log('Authentication successful:', response);
     } catch (error) {
-      console.error('Error during sign-in:', error);
+        if (retries > 0) {
+            console.log(`Retrying authentication... Attempts left: ${retries}`);
+            await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait 2 seconds before retrying
+            return handleLogin(retries - 1);
+        } else {
+            console.error('Authentication failed after multiple attempts:', error);
+        }
     }
-  };
+};
 
   const initializeTerminal = () => {
     if (terminalContainerRef.current) {
@@ -154,18 +178,16 @@ export function Header() {
         }}
       >
         <h2 className="text-lg font-bold">Login</h2>
-        <button
-          onClick={handleLogin}
-          className="px-4 py-2 mt-4 text-white bg-blue-500 rounded hover:bg-blue-700"
-        >
-          Login with Google
-        </button>
-        <button
-          onClick={() => setIsModalOpen(false)}
-          className="px-4 py-2 mt-4 text-white bg-gray-500 rounded hover:bg-gray-700"
-        >
-          Close
-        </button>
+        // In your JSX
+<button
+    onClick={(event) => {
+        event.preventDefault(); // Prevent default button behavior (optional)
+        handleLogin(); // Call handleLogin without passing the event
+    }}
+    className="flex items-center self-end justify-center w-full px-2 py-1 text-xs transition-colors duration-200 border rounded-md text-list hover:border-white hover:text-white border-list"
+>
+    Login
+</button>
       </Modal>
 
       <style jsx global>{`
