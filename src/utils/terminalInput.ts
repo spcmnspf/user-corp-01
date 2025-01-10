@@ -137,12 +137,12 @@ async function getStatus() {
             return 'System status: No user logged in. Please issue the "whoami" command for more information.';
         }
 
-        const availableCmds = Object.entries(commands)
-            // .filter(([_, cmd]) => cmd.requireAuth)
-            .map(([name, _]) => name)
-            .join('", "');
+        // const availableCmds = Object.entries(commands)
+        //     // .filter(([_, cmd]) => cmd.requireAuth)
+        //     .map(([name, _]) => name)
+        //     .join('", "');
             
-        return `System status: All systems operational.\nAvailable secure commands: "${availableCmds}"`;
+        return `System status: All systems operational.\nAvailable secure commands: "?"`;
     } catch (error) {
         console.error('Error getting status:', error);
         return 'Error: Could not fetch system status.';
