@@ -6,7 +6,7 @@ import { nhost } from '../utils/nhost';
 // Define types
 type CommandAction = (args?: string[], print?: (text: string, type?: string) => void) => void;
 
-interface Command {
+export interface Command {
     command: string;
     desc: string;
     hidden: boolean;
@@ -14,7 +14,7 @@ interface Command {
 }
 
 // Custom hook for terminateSession
-const useTerminateSession = () => {
+export const useTerminateSession = () => { // Export the function
     const { signOut } = useSignOut();
 
     const terminateSession = async (print: (text: string, type?: string) => void) => {
@@ -33,13 +33,13 @@ const useTerminateSession = () => {
 };
 
 // Define the commands array
-const commands: Command[] = [
+export const getCommands = (terminateSession: (print: (text: string, type?: string) => void) => Promise<void>): Command[] => [
     {
         command: 'help',
         desc: 'Show this help message',
         hidden: false,
         action: (args, print) => {
-            const helpText = commands
+            const helpText = getCommands(terminateSession)
                 .filter(cmd => !cmd.hidden)
                 .map(cmd => `  ${cmd.command.padEnd(10)} - ${cmd.desc}`)
                 .join('\n');
@@ -59,7 +59,7 @@ const commands: Command[] = [
         desc: 'Show system status',
         hidden: false,
         action: async (args, print) => {
-            const status = await getStatus(commands);
+            const status = await getStatus(getCommands(terminateSession));
             print(status);
         },
     },
@@ -105,8 +105,7 @@ const commands: Command[] = [
         desc: 'Terminate session',
         hidden: false,
         action: async (args, print) => {
-            const terminateSession = useTerminateSession(); // Use the custom hook
-            await terminateSession(print);
+            await terminateSession(print); // Use the passed terminateSession function
         },
     },
     {
@@ -190,7 +189,8 @@ function extractData() {
 // Define the useTerminal hook
 const useTerminal = () => {
     const [output, setOutput] = useState<string[]>([]);
-    const terminateSession = useTerminateSession(); // Use the custom hook
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const terminateSession = useTerminateSession(); // Suppress the warning
 
     const print = (text: string, type?: string) => {
         if (type === 'clear') {
@@ -201,11 +201,14 @@ const useTerminal = () => {
     };
 
     const handleCommand = (input: string) => {
+        const commands = getCommands(terminateSession); // Pass terminateSession to getCommands
         executeCommand(input, print, commands);
     };
 
     return { output, handleCommand };
 };
 
+// terminalInput.ts
+// export { getCommands};
 // Export everything
-export { useTerminal, commands };
+export { useTerminal };

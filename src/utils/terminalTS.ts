@@ -1,5 +1,5 @@
 import styles from '../styles/terminalTS.module.css';
-import { executeCommand, commands } from './terminalInput'; // Import `commands` from terminalInput
+import { executeCommand, getCommands, useTerminateSession, Command } from './terminalInput'; // Import from terminalInput
 
 export class Terminal {
     container: HTMLElement;
@@ -7,11 +7,14 @@ export class Terminal {
     historyIndex: number;
     outputElement: HTMLElement;
     inputElement: HTMLInputElement;
+    commands: Command[]; // Add a commands property
 
     constructor(container: HTMLElement) {
         this.container = container;
         this.history = [];
         this.historyIndex = -1;
+        const terminateSession = useTerminateSession(); // Create the terminateSession function
+        this.commands = getCommands(terminateSession); // Generate the commands array
         this.setupTerminal();
     }
 
@@ -88,7 +91,7 @@ export class Terminal {
         this.container.addEventListener('click', () => this.inputElement.focus());
     }
 
-    // Update the executeCommand method to pass the commands array
+    // Update the executeCommand method to use the commands property
     executeCommand(command: string) {
         this.print(`> ${command}`, styles.command);
 
@@ -98,7 +101,7 @@ export class Terminal {
             (text: string, type?: string) => {
                 this.print(text, type || styles.output);
             },
-            commands // Pass the commands array as the third argument
+            this.commands // Use the commands property
         );
     }
 }
