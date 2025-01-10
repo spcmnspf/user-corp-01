@@ -1,9 +1,8 @@
-import { useAuthenticationStatus, useSignOut } from '@nhost/react';
+import { useAuthenticationStatus } from '@nhost/react';
 import styles from '../styles/terminalTS.module.css';
 import { data } from '../data/info';
 
 import { useEffect, useState } from 'react';
-// import { useAuth } from '@nhost/react-auth';
 
 type CommandAction = (args?: string[], print?: (text: string, type?: string) => void) => void;
 
@@ -14,9 +13,6 @@ interface Command {
     action: CommandAction;
 }
 
-
-
-// Update the commands to use the print function
 const commands: Command[] = [
     {
         command: 'help',
@@ -37,7 +33,6 @@ const commands: Command[] = [
         action: (args, print) => {
             const outputElement = document.querySelector(`.${styles.terminalOutput}`) as HTMLElement;
             if (outputElement) {
-                // Preserve welcome messages
                 const welcomeMessages = Array.from(outputElement.children).slice(0, 2);
                 outputElement.innerHTML = '';
                 welcomeMessages.forEach(message => outputElement.appendChild(message));
@@ -86,9 +81,8 @@ const commands: Command[] = [
         action: (args, print) => {
             print('Authenticating user...');
             setTimeout(() => {
-                (window as any).openLoginModal(); // Trigger the login modal
+                (window as any).openLoginModal();
             }, 1000);
-            
         },
     },
     {
@@ -120,7 +114,6 @@ const commands: Command[] = [
     },
 ];
 
-// Update the executeCommand function to accept a print function
 export function executeCommand(input: string, print: (text: string, type?: string) => void): void {
     const [cmd, ...args] = input.split(' ');
     const command = commands.find(c => c.command === cmd);
@@ -131,23 +124,17 @@ export function executeCommand(input: string, print: (text: string, type?: strin
     }
 }
 
-// Placeholder functions for command actions
-// async function getStatus() {
-//     return 'System status: All systems operational.';
-// }
 async function getStatus() {
     const { isAuthenticated } = useAuthenticationStatus();
     const [status, setStatus] = useState('Fetching system status...');
 
     useEffect(() => {
-        async function getStatus() {
+        async function fetchStatus() {
             try {
                 if (!isAuthenticated) {
                     setStatus('System status: No user logged in. Please issue the "whoami" command for more information.');
                     return;
                 }
-
-                                
                 setStatus('System status: All systems operational.\nAvailable secure commands: "?"');
             } catch (error) {
                 console.error('Error getting status:', error);
@@ -155,12 +142,11 @@ async function getStatus() {
             }
         }
 
-        getStatus();
+        fetchStatus();
     }, [isAuthenticated]);
 
     return status;
 }
-
 
 async function getUserInfo() {
     return 'User: Not authenticated\nPlease use the "login" command to authenticate.';
@@ -185,7 +171,3 @@ function hackSystem() {
 function extractData() {
     console.log('Extracting data...');
 }
-function isAuthenticated(): { data: { session: any; }; } | PromiseLike<{ data: { session: any; }; }> {
-    throw new Error('Function not implemented.');
-}
-
