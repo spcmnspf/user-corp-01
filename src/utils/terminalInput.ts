@@ -1,5 +1,9 @@
+import { useAuthenticationStatus, useSignOut } from '@nhost/react';
 import styles from '../styles/terminalTS.module.css';
 import { data } from '../data/info';
+
+import { useEffect, useState } from 'react';
+// import { useAuth } from '@nhost/react-auth';
 
 type CommandAction = (args?: string[], print?: (text: string, type?: string) => void) => void;
 
@@ -9,6 +13,8 @@ interface Command {
     hidden: boolean;
     action: CommandAction;
 }
+
+
 
 // Update the commands to use the print function
 const commands: Command[] = [
@@ -129,24 +135,30 @@ export function executeCommand(input: string, print: (text: string, type?: strin
 // async function getStatus() {
 //     return 'System status: All systems operational.';
 // }
-
 async function getStatus() {
-    try {
-        const { data: { session } } = await isAuthenticated();
-        if (!session) {
-            return 'System status: No user logged in. Please issue the "whoami" command for more information.';
+    const { isAuthenticated } = useAuthenticationStatus();
+    const [status, setStatus] = useState('Fetching system status...');
+
+    useEffect(() => {
+        async function getStatus() {
+            try {
+                if (!isAuthenticated) {
+                    setStatus('System status: No user logged in. Please issue the "whoami" command for more information.');
+                    return;
+                }
+
+                                
+                setStatus('System status: All systems operational.\nAvailable secure commands: "?"');
+            } catch (error) {
+                console.error('Error getting status:', error);
+                setStatus('Error: Could not fetch system status.');
+            }
         }
 
-        // const availableCmds = Object.entries(commands)
-        //     // .filter(([_, cmd]) => cmd.requireAuth)
-        //     .map(([name, _]) => name)
-        //     .join('", "');
-            
-        return `System status: All systems operational.\nAvailable secure commands: "?"`;
-    } catch (error) {
-        console.error('Error getting status:', error);
-        return 'Error: Could not fetch system status.';
-    }
+        getStatus();
+    }, [isAuthenticated]);
+
+    return status;
 }
 
 
