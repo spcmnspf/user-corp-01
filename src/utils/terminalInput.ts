@@ -2,8 +2,6 @@ import { useAuthenticationStatus } from '@nhost/react';
 import styles from '../styles/terminalTS.module.css';
 import { data } from '../data/info';
 
-import { useEffect, useState } from 'react';
-
 type CommandAction = (args?: string[], print?: (text: string, type?: string) => void) => void;
 
 interface Command {
@@ -44,8 +42,8 @@ const commands: Command[] = [
         command: 'status',
         desc: 'Show system status',
         hidden: false,
-        action: async (args, print) => {
-            const status = await getStatus();
+        action: (args, print) => {
+            const status = getStatus();
             print(status);
         },
     },
@@ -124,19 +122,22 @@ export function executeCommand(input: string, print: (text: string, type?: strin
     }
 }
 
+function useAuthStatus() {
+    const { isAuthenticated, error } = useAuthenticationStatus();
+
+    if (error) {
+        return 'Error checking authentication: ' + error;
+    }
+
+    if (!isAuthenticated) {
+        return 'System status: No user logged in. Please issue the "whoami" command for more information.';
+    } else {
+        return 'System status: All systems operational.\nAvailable secure commands: "?"';
+    }
+}
 
 function getStatus() {
-  const { isAuthenticated, error } = useAuthenticationStatus();
-
-  if (error) {
-    return 'Error checking authentication: ' + error;
-  }
-
-  if (!isAuthenticated) {
-    return 'System status: No user logged in. Please issue the "whoami" command for more information.';
-  } else {
-    return 'System status: All systems operational.\nAvailable secure commands: "?"';
-  }
+    return useAuthStatus();
 }
 
 async function getUserInfo() {
