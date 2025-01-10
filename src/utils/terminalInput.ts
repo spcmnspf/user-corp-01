@@ -1,9 +1,10 @@
-import { useAuthenticationStatus } from '@nhost/react';
 import styles from '../styles/terminalTS.module.css';
 import { data } from '../data/info';
+import { useAuthenticationStatus } from '@nhost/react';
+
+
 
 type CommandAction = (args?: string[], print?: (text: string, type?: string) => void) => void;
-const { isAuthenticated, error } = useAuthenticationStatus();
 
 interface Command {
     command: string;
@@ -12,6 +13,7 @@ interface Command {
     action: CommandAction;
 }
 
+// Update the commands to use the print function
 const commands: Command[] = [
     {
         command: 'help',
@@ -32,6 +34,7 @@ const commands: Command[] = [
         action: (args, print) => {
             const outputElement = document.querySelector(`.${styles.terminalOutput}`) as HTMLElement;
             if (outputElement) {
+                // Preserve welcome messages
                 const welcomeMessages = Array.from(outputElement.children).slice(0, 2);
                 outputElement.innerHTML = '';
                 welcomeMessages.forEach(message => outputElement.appendChild(message));
@@ -43,8 +46,8 @@ const commands: Command[] = [
         command: 'status',
         desc: 'Show system status',
         hidden: false,
-        action: (args, print) => {
-            const status = getStatus();
+        action: async (args, print) => {
+            const status = await getStatus();
             print(status);
         },
     },
@@ -80,7 +83,7 @@ const commands: Command[] = [
         action: (args, print) => {
             print('Authenticating user...');
             setTimeout(() => {
-                (window as any).openLoginModal();
+                (window as any).openLoginModal(); // Trigger the login modal
             }, 1000);
         },
     },
@@ -113,6 +116,7 @@ const commands: Command[] = [
     },
 ];
 
+// Update the executeCommand function to accept a print function
 export function executeCommand(input: string, print: (text: string, type?: string) => void): void {
     const [cmd, ...args] = input.split(' ');
     const command = commands.find(c => c.command === cmd);
@@ -123,19 +127,17 @@ export function executeCommand(input: string, print: (text: string, type?: strin
     }
 }
 
-function getStatus() {
-    
 
-    if (error) {
-        return 'Error checking authentication: ' + error;
-    }
 
-    if (!isAuthenticated) {
-        return 'System status: No user logged in. Please issue the "whoami" command for more information.';
+async function getStatus() {
+    const { isAuthenticated } = useAuthenticationStatus();
+    if (isAuthenticated) {
+        return 'System status: User is authenticated with Google.';
     } else {
-        return 'System status: All systems operational.\nAvailable secure commands: "?"';
+        return 'System status: User is not authenticated. Please log in using the "login" command.';
     }
 }
+
 
 
 async function getUserInfo() {
