@@ -1,7 +1,6 @@
 import styles from '../styles/terminalTS.module.css';
 import { data } from '../data/info';
 import { nhost } from '../utils/nhost'; // Adjust the import path as needed
-import { useUserDisplayName } from '@nhost/react';
 
 
 
@@ -146,10 +145,9 @@ async function getStatus() {
 
 async function getUserInfo() {
     try {
-        const userName = useUserDisplayName();
+        const userName = nhost.auth.getUser();
         if (userName) {
-            const user = userName;
-            return 'User: '+ user +'\nPlease use the "terminate" command to log out.';
+            return 'User: '+ userName.displayName +'\nPlease use the "terminate" command to log out.';
         }
         return 'User: Not authenticated\nPlease use the "login" command to authenticate.';
     } catch (error) {
