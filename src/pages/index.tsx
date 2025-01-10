@@ -7,31 +7,37 @@ import { data } from '@/data/info';
 import BaseLayout from '@/layouts/BaseLayout';
 // import { getDatesInRange } from '@/utils/getDatesInRange';
 import { Terminal } from '@/utils/terminalTS';
+import Modal from 'react-modal'; // Correct import statement
 import { ReactElement } from 'react';
 
 function IndexPage() {
   useEffect(() => {
-    const terminalContainer = document.createElement('div');
-    terminalContainer.style.position = 'fixed';
-    terminalContainer.style.top = '50%';
-    terminalContainer.style.left = '50%';
-    terminalContainer.style.transform = 'translate(-50%, -50%)';
-    terminalContainer.style.width = '80%';
-    terminalContainer.style.height = '60%';
-    terminalContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
-    terminalContainer.style.border = '1px solid #00fff2';
-    terminalContainer.style.borderRadius = '4px';
-    terminalContainer.style.boxShadow = '0 0 20px rgba(0, 255, 242, 0.2)';
-    terminalContainer.style.overflow = 'hidden';
-    terminalContainer.style.zIndex = '1000';
-    terminalContainer.style.padding = '10px'; // Add padding to ensure text can be entered
-    document.body.appendChild(terminalContainer);
+    if (typeof window !== 'undefined') {
+      Modal.setAppElement('#__next'); // Set the app element for accessibility
 
-    new Terminal(terminalContainer);
+      const terminalContainer = document.createElement('div');
+      terminalContainer.className = 'terminal-container'; // Add class for blurring effect
+      terminalContainer.style.position = 'fixed';
+      terminalContainer.style.top = '50%';
+      terminalContainer.style.left = '50%';
+      terminalContainer.style.transform = 'translate(-50%, -50%)';
+      terminalContainer.style.width = '80%';
+      terminalContainer.style.height = '60%';
+      terminalContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+      terminalContainer.style.border = '1px solid #00fff2';
+      terminalContainer.style.borderRadius = '4px';
+      terminalContainer.style.boxShadow = '0 0 20px rgba(0, 255, 242, 0.2)';
+      terminalContainer.style.overflow = 'hidden';
+      terminalContainer.style.zIndex = '999'; // Ensure terminal has a lower z-index than the modal
+      terminalContainer.style.padding = '10px'; // Add padding to ensure text can be entered
+      document.body.appendChild(terminalContainer);
 
-    return () => {
-      document.body.removeChild(terminalContainer);
-    };
+      new Terminal(terminalContainer);
+
+      return () => {
+        document.body.removeChild(terminalContainer);
+      };
+    }
   }, []);
 
   return (

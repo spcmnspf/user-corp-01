@@ -1,3 +1,4 @@
+import styles from '../styles/terminalTS.module.css';
 import { data } from '../data/info';
 
 type CommandAction = (args?: string[], print?: (text: string, type?: string) => void) => void;
@@ -9,7 +10,7 @@ interface Command {
     action: CommandAction;
 }
 
-// Update the help command action to use the print function
+// Update the commands to use the print function
 const commands: Command[] = [
     {
         command: 'help',
@@ -27,49 +28,57 @@ const commands: Command[] = [
         command: 'clear',
         desc: 'Clear terminal',
         hidden: false,
-        action: () => {
-            console.clear();
+        action: (args, print) => {
+            const outputElement = document.querySelector(`.${styles.terminalOutput}`) as HTMLElement;
+            if (outputElement) {
+                // Preserve welcome messages
+                const welcomeMessages = Array.from(outputElement.children).slice(0, 2);
+                outputElement.innerHTML = '';
+                welcomeMessages.forEach(message => outputElement.appendChild(message));
+            }
+            print('Terminal cleared.');
         },
     },
     {
         command: 'status',
         desc: 'Show system status',
         hidden: false,
-        action: async () => {
+        action: async (args, print) => {
             const status = await getStatus();
-            console.log(status);
+            print(status);
         },
     },
     {
         command: 'whoami',
         desc: 'Display current user',
         hidden: false,
-        action: async () => {
+        action: async (args, print) => {
             const userInfo = await getUserInfo();
-            console.log(userInfo);
+            print(userInfo);
         },
     },
     {
         command: 'time',
         desc: 'Show current time',
         hidden: false,
-        action: () => {
-            console.log(getCurrentTime());
+        action: (args, print) => {
+            print(getCurrentTime());
         },
     },
     {
         command: 'version',
         desc: 'Show system version',
         hidden: false,
-        action: () => {
-            console.log(getVersionInfo());
+        action: (args, print) => {
+            print(getVersionInfo());
         },
     },
     {
         command: 'login',
         desc: 'Login to system',
         hidden: false,
-        action: () => {
+        action: (args, print) => {
+            print('Opening login modal...');
             // openModal();
         },
     },
@@ -77,24 +86,27 @@ const commands: Command[] = [
         command: 'terminate',
         desc: 'Terminate session',
         hidden: false,
-        action: () => {
+        action: (args, print) => {
             terminateSession();
+            print('Session terminated successfully.');
         },
     },
     {
         command: 'hack',
         desc: 'Access corporate systems',
         hidden: true,
-        action: () => {
+        action: (args, print) => {
             hackSystem();
+            print('Hacking system...');
         },
     },
     {
         command: 'extract',
         desc: 'Extract encrypted data',
         hidden: true,
-        action: () => {
+        action: (args, print) => {
             extractData();
+            print('Extracting data...');
         },
     },
 ];
@@ -124,7 +136,7 @@ function getCurrentTime() {
 }
 
 function getVersionInfo() {
-    return `System version: ${data.version}\nBuild: ${data.build}`;
+    return `SassyOS ${data.version}\n\n  S)ecure\n  A)uthentication\n  S)ystem\n  S)ynced\n  Y)esterday\n\nBuild: ${data.build}`;
 }
 
 function terminateSession() {

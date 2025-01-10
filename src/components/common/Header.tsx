@@ -4,16 +4,59 @@ import { useRouter } from 'next/router';
 import { twMerge } from 'tailwind-merge';
 import { useEffect, useState } from 'react';
 import { generateNodeName } from '@/utils/generateNodeName';
+import Modal from 'react-modal'; // Correct import statement
+import { nhost } from '@/utils/nhost'; // Make sure to import nhost
+import { Terminal } from '@/utils/terminalTS'; // Import Terminal
 
 export function Header() {
   const { asPath } = useRouter();
   const { isLoading, isAuthenticated } = useAuthenticationStatus();
   const { signOut } = useSignOut();
   const [nodeName, setNodeName] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     setNodeName(generateNodeName());
   }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      Modal.setAppElement('#__next'); // Set the app element for accessibility
+    }
+  }, []);
+
+  const handleLogin = async () => {
+    try {
+      await nhost.auth.signIn({
+        provider: 'google',
+      });
+      setIsModalOpen(false);
+      initializeTerminal(); // Initialize terminal after login
+    } catch (error) {
+      console.error('Error during sign-in:', error);
+    }
+  };
+
+  const initializeTerminal = () => {
+    const terminalContainer = document.createElement('div');
+    terminalContainer.className = 'terminal-container'; // Add class for blurring effect
+    terminalContainer.style.position = 'fixed';
+    terminalContainer.style.top = '50%';
+    terminalContainer.style.left = '50%';
+    terminalContainer.style.transform = 'translate(-50%, -50%)';
+    terminalContainer.style.width = '80%';
+    terminalContainer.style.height = '60%';
+    terminalContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+    terminalContainer.style.border = '1px solid #00fff2';
+    terminalContainer.style.borderRadius = '4px';
+    terminalContainer.style.boxShadow = '0 0 20px rgba(0, 255, 242, 0.2)';
+    terminalContainer.style.overflow = 'hidden';
+    terminalContainer.style.zIndex = '999'; // Ensure terminal has a lower z-index than the modal
+    terminalContainer.style.padding = '10px';
+    document.body.appendChild(terminalContainer);
+
+    new Terminal(terminalContainer);
+  };
 
   return (
     <header className="sticky border-b bg-header border-b-brd">
@@ -94,12 +137,60 @@ export function Header() {
                   Sign In
                 </a>
               </Link>
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="flex items-center self-end justify-center w-full px-2 py-1 text-xs transition-colors duration-200 border rounded-md text-list hover:border-white hover:text-white border-list"
+              >
+                Login
+              </button>
             </div>
           )}
 
           {isLoading && <div className="w-16" />}
         </div>
       </div>
+
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={() => setIsModalOpen(false)}
+        contentLabel="Login Modal"
+        className="modal"
+        overlayClassName="modal-overlay"
+        onAfterOpen={() => {
+          document.body.classList.add('modal-open');
+        }}
+        onAfterClose={() => {
+          document.body.classList.remove('modal-open');
+        }}
+        style={{
+          overlay: {
+            zIndex: 1000, // Set a higher z-index for the overlay
+          },
+          content: {
+            zIndex: 1001, // Set a higher z-index for the modal content
+          },
+        }}
+      >
+        <h2 className="text-lg font-bold">Login</h2>
+        <button
+          onClick={handleLogin}
+          className="px-4 py-2 mt-4 text-white bg-blue-500 rounded hover:bg-blue-700"
+        >
+          Login with Google
+        </button>
+        <button
+          onClick={() => setIsModalOpen(false)}
+          className="px-4 py-2 mt-4 text-white bg-gray-500 rounded hover:bg-gray-700"
+        >
+          Close
+        </button>
+      </Modal>
+
+      <style jsx global>{`
+        .modal-open .terminal-container {
+          filter: blur(5px);
+        }
+      `}</style>
     </header>
   );
 }
