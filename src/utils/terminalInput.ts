@@ -124,28 +124,19 @@ export function executeCommand(input: string, print: (text: string, type?: strin
     }
 }
 
-async function getStatus() {
-    const { isAuthenticated } = useAuthenticationStatus();
-    const [status, setStatus] = useState('Fetching system status...');
 
-    useEffect(() => {
-        async function fetchStatus() {
-            try {
-                if (!isAuthenticated) {
-                    setStatus('System status: No user logged in. Please issue the "whoami" command for more information.');
-                    return;
-                }
-                setStatus('System status: All systems operational.\nAvailable secure commands: "?"');
-            } catch (error) {
-                console.error('Error getting status:', error);
-                setStatus('Error: Could not fetch system status.');
-            }
-        }
+function getStatus() {
+  const { isAuthenticated, error } = useAuthenticationStatus();
 
-        fetchStatus();
-    }, [isAuthenticated]);
+  if (error) {
+    return 'Error checking authentication: ' + error;
+  }
 
-    return status;
+  if (!isAuthenticated) {
+    return 'System status: No user logged in. Please issue the "whoami" command for more information.';
+  } else {
+    return 'System status: All systems operational.\nAvailable secure commands: "?"';
+  }
 }
 
 async function getUserInfo() {
