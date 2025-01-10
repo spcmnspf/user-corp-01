@@ -11,23 +11,23 @@ const Terminal: React.FC<{ container: HTMLElement }> = ({ container }) => {
     const terminateSession = useTerminateSession();
 
 
-    const setupTerminal = () => {
-        container.innerHTML = `
-            <div class="${styles.terminalBody} ${styles.local}">
-                <div class="${styles.terminalOutput}"></div>
-                <div class="${styles.terminalInputLine}">
-                    <span class="${styles.prompt}">&gt;</span>
-                    <input type="text" class="${styles.terminalInput}" spellcheck="false" autocomplete="off">
-                </div>
-            </div>
-        `;
+    // const setupTerminal = () => {
+    //     container.innerHTML = `
+    //         <div class="${styles.terminalBody} ${styles.local}">
+    //             <div class="${styles.terminalOutput}"></div>
+    //             <div class="${styles.terminalInputLine}">
+    //                 <span class="${styles.prompt}">&gt;</span>
+    //                 <input type="text" class="${styles.terminalInput}" spellcheck="false" autocomplete="off">
+    //             </div>
+    //         </div>
+    //     `;
 
-        outputElement.current = container.querySelector(`.${styles.terminalOutput}`) as HTMLElement;
-        inputElement.current = container.querySelector(`.${styles.terminalInput}`) as HTMLInputElement;
+    //     outputElement.current = container.querySelector(`.${styles.terminalOutput}`) as HTMLElement;
+    //     inputElement.current = container.querySelector(`.${styles.terminalInput}`) as HTMLInputElement;
 
-        setupEventListeners();
-        printWelcome();
-    };
+    //     setupEventListeners();
+    //     printWelcome();
+    // };
 
     const printWelcome = () => {
         print('Terminal initialized...', `${styles.centered} welcome-message`);
@@ -91,9 +91,27 @@ const Terminal: React.FC<{ container: HTMLElement }> = ({ container }) => {
     };
 
     useEffect(() => {
+        const setupTerminal = () => {
+            container.innerHTML = `
+                <div class="${styles.terminalBody} ${styles.local}">
+                    <div class="${styles.terminalOutput}"></div>
+                    <div class="${styles.terminalInputLine}">
+                        <span class="${styles.prompt}">&gt;</span>
+                        <input type="text" class="${styles.terminalInput}" spellcheck="false" autocomplete="off">
+                    </div>
+                </div>
+            `;
+    
+            outputElement.current = container.querySelector(`.${styles.terminalOutput}`) as HTMLElement;
+            inputElement.current = container.querySelector(`.${styles.terminalInput}`) as HTMLInputElement;
+    
+            setupEventListeners();
+            printWelcome();
+        };
+    
         commands.current = getCommands(terminateSession);
         setupTerminal();
-    }, [terminateSession, setupTerminal]); // Add setupTerminal to the dependency array
+    }, [terminateSession, container, setupEventListeners, printWelcome]); // Add dependencies if needed
 
     return null; // Since this component doesn't render anything directly
 };

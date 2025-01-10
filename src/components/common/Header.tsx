@@ -6,7 +6,7 @@ import { useEffect, useState, useRef } from 'react';
 import Modal from 'react-modal';
 import { nhost } from '@/utils/nhost';
 import { generateNodeName } from '@/utils/generateNodeName';
-import Terminal from '@/utils/terminalTS';
+// import Terminal from '@/utils/terminalTS';
 
 declare global {
   interface Window {
