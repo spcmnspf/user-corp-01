@@ -13,6 +13,25 @@ interface Command {
     action: CommandAction;
 }
 
+// Custom hook for terminateSession
+const useTerminateSession = () => {
+    const { signOut } = useSignOut();
+
+    const terminateSession = async (print: (text: string, type?: string) => void) => {
+        print('Initiating session termination...');
+        setTimeout(() => {
+            console.log('Clearing authentication tokens...');
+        }, 1000);
+        await signOut();
+        setTimeout(() => {
+            console.log('Session terminated successfully.');
+            print('Session terminated successfully.');
+        }, 2000);
+    };
+
+    return terminateSession;
+};
+
 // Define the commands array
 const commands: Command[] = [
     {
@@ -86,6 +105,7 @@ const commands: Command[] = [
         desc: 'Terminate session',
         hidden: false,
         action: async (args, print) => {
+            const terminateSession = useTerminateSession(); // Use the custom hook
             await terminateSession(print);
         },
     },
@@ -159,19 +179,6 @@ function getVersionInfo() {
     return `SassyOS ${data.version}\n\n  S)ecure\n  A)uthentication\n  S)ystem\n  S)ynced\n  Y)esterday\n\nBuild: ${data.build}`;
 }
 
-async function terminateSession(print: (text: string, type?: string) => void) {
-    const { signOut } = useSignOut();
-    print('Initiating session termination...');
-    setTimeout(() => {
-        console.log('Clearing authentication tokens...');
-    }, 1000);
-    await signOut();
-    setTimeout(() => {
-        console.log('Session terminated successfully.');
-        print('Session terminated successfully.');
-    }, 2000);
-}
-
 function hackSystem() {
     console.log('Hacking system...');
 }
@@ -182,8 +189,8 @@ function extractData() {
 
 // Define the useTerminal hook
 const useTerminal = () => {
-    const { signOut } = useSignOut();
     const [output, setOutput] = useState<string[]>([]);
+    const terminateSession = useTerminateSession(); // Use the custom hook
 
     const print = (text: string, type?: string) => {
         if (type === 'clear') {
