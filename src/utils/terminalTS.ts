@@ -34,15 +34,16 @@ const Terminal: React.FC<{ container: HTMLElement }> = ({ container }) => {
     };
 
     const printWelcome = () => {
-        print('Terminal initialized...', styles.centered);
-        print('Type "help" for available commands.', styles.centered);
+        print('Terminal initialized...', `${styles.centered} welcome-message`);
+        print('Type "help" for available commands.', `${styles.centered} welcome-message`);
     };
 
     const print = (text: string, type: string = styles.output) => {
         if (type === 'clear') {
-            // Clear the terminal output
+            // Clear the terminal output, but keep welcome messages
             if (outputElement.current) {
-                outputElement.current.innerHTML = ''; // Clear all content
+                const lines = outputElement.current.querySelectorAll(`.${styles.terminalLine}:not(.welcome-message)`);
+                lines.forEach(line => line.remove()); // Remove all lines except welcome messages
             }
             return;
         }
