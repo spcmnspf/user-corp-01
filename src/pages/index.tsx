@@ -1,20 +1,18 @@
-import { useEffect } from 'react';
-// import { Loader } from '@/components/common/Loader';
-// import { Day } from '@/components/conferences/Day';
-// import { SubscribeToConference } from '@/components/conferences/SubscribeToConference';
-// import { DEFAULT_CONFERENCE_SLUG } from '@/data/constants';
+import { useEffect, useRef } from 'react'; // Add useRef
 import { data } from '@/data/info';
 import BaseLayout from '@/layouts/BaseLayout';
-// import { getDatesInRange } from '@/utils/getDatesInRange';
-import { Terminal } from '@/utils/terminalTS';
-import Modal from 'react-modal'; // Correct import statement
+import Terminal from '@/utils/terminalTS'; // Updated import
+import Modal from 'react-modal';
 import { ReactElement } from 'react';
 
 function IndexPage() {
+  const terminalContainerRef = useRef<HTMLDivElement | null>(null); // Ref for the terminal container
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       Modal.setAppElement('#__next'); // Set the app element for accessibility
 
+      // Create the terminal container
       const terminalContainer = document.createElement('div');
       terminalContainer.className = 'terminal-container'; // Add class for blurring effect
       terminalContainer.style.position = 'fixed';
@@ -32,10 +30,17 @@ function IndexPage() {
       terminalContainer.style.padding = '10px'; // Add padding to ensure text can be entered
       document.body.appendChild(terminalContainer);
 
-      new Terminal(terminalContainer);
+      // Store the container in the ref
+      terminalContainerRef.current = terminalContainer;
 
+      // Render the Terminal component
+      <Terminal container={terminalContainer} />;
+
+      // Cleanup function
       return () => {
-        document.body.removeChild(terminalContainer);
+        if (terminalContainerRef.current) {
+          document.body.removeChild(terminalContainerRef.current);
+        }
       };
     }
   }, []);

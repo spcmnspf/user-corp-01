@@ -1,25 +1,22 @@
+import React, { useEffect, useRef } from 'react';
 import styles from '../styles/terminalTS.module.css';
-import { executeCommand, getCommands, useTerminateSession, Command } from './terminalInput'; // Import from terminalInput
+import { executeCommand, getCommands, useTerminateSession, Command } from './terminalInput';
 
-export class Terminal {
-    container: HTMLElement;
-    history: string[];
-    historyIndex: number;
-    outputElement: HTMLElement;
-    inputElement: HTMLInputElement;
-    commands: Command[]; // Add a commands property
+const Terminal: React.FC<{ container: HTMLElement }> = ({ container }) => {
+    const history = useRef<string[]>([]);
+    const historyIndex = useRef<number>(-1);
+    const outputElement = useRef<HTMLElement | null>(null);
+    const inputElement = useRef<HTMLInputElement | null>(null);
+    const commands = useRef<Command[]>([]);
+    const terminateSession = useTerminateSession();
 
-    constructor(container: HTMLElement) {
-        this.container = container;
-        this.history = [];
-        this.historyIndex = -1;
-        const terminateSession = useTerminateSession(); // Create the terminateSession function
-        this.commands = getCommands(terminateSession); // Generate the commands array
-        this.setupTerminal();
-    }
+    useEffect(() => {
+        commands.current = getCommands(terminateSession);
+        setupTerminal();
+    }, [terminateSession]);
 
-    setupTerminal() {
-        this.container.innerHTML = `
+    const setupTerminal = () => {
+        container.innerHTML = `
             <div class="${styles.terminalBody} ${styles.local}">
                 <div class="${styles.terminalOutput}"></div>
                 <div class="${styles.terminalInputLine}">
@@ -29,79 +26,65 @@ export class Terminal {
             </div>
         `;
 
-        this.outputElement = this.container.querySelector(`.${styles.terminalOutput}`) as HTMLElement;
-        this.inputElement = this.container.querySelector(`.${styles.terminalInput}`) as HTMLInputElement;
+        outputElement.current = container.querySelector(`.${styles.terminalOutput}`) as HTMLElement;
+        inputElement.current = container.querySelector(`.${styles.terminalInput}`) as HTMLInputElement;
 
-        console.log('Output Element:', this.outputElement); // Debugging line
-        console.log('Input Element:', this.inputElement); // Debugging line
+        setupEventListeners();
+        printWelcome();
+    };
 
-        if (!this.inputElement) {
-            console.error('Input element not found'); // Debugging line
-        } else {
-            console.log('Input Element:', this.inputElement); // Debugging line
-        }
+    const printWelcome = () => {
+        print('Terminal initialized...', styles.centered);
+        print('Type "help" for available commands.', styles.centered);
+    };
 
-        this.setupEventListeners();
-        this.printWelcome();
-    }
-
-    printWelcome() {
-        this.print('Terminal initialized...', styles.centered);
-        this.print('Type "help" for available commands.', styles.centered);
-    }
-
-    print(text: string, type: string = styles.output) {
-        console.log('Printing text:', text); // Debugging line
+    const print = (text: string, type: string = styles.output) => {
         const lines = text.split('\n');
         lines.forEach(lineText => {
             const line = document.createElement('div');
             line.className = `${styles.terminalLine} ${type}`;
             line.textContent = lineText;
-            this.outputElement.appendChild(line);
-            console.log('Appended line:', line); // Debugging line
-            // Force scroll after each line
-            this.container.scrollTop = this.container.scrollHeight;
-            this.outputElement.scrollTop = this.outputElement.scrollHeight;
+            outputElement.current?.appendChild(line);
+            container.scrollTop = container.scrollHeight;
+            outputElement.current!.scrollTop = outputElement.current!.scrollHeight;
         });
-        // Ensure final scroll
         requestAnimationFrame(() => {
-            this.container.scrollTop = this.container.scrollHeight;
-            this.outputElement.scrollTop = this.outputElement.scrollHeight;
+            container.scrollTop = container.scrollHeight;
+            outputElement.current!.scrollTop = outputElement.current!.scrollHeight;
         });
-    }
+    };
 
-    setupEventListeners() {
-        this.inputElement.addEventListener('keydown', (e) => {
-            console.log('Key pressed:', e.key); // Debugging line
+    const setupEventListeners = () => {
+        inputElement.current?.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
-                const command = this.inputElement.value?.trim();
-                console.log('Command entered:', command); // Debugging line
+                const command = inputElement.current?.value?.trim();
                 if (command) {
-                    this.executeCommand(command);
-                    this.history.push(command);
-                    this.historyIndex = this.history.length;
-                    this.inputElement.value = '';
-                } else {
-                    console.log('No command entered'); // Debugging line
+                    executeCommandHandler(command);
+                    history.current.push(command);
+                    historyIndex.current = history.current.length;
+                    inputElement.current.value = '';
                 }
             }
         });
 
-        this.inputElement.focus();
-        this.container.addEventListener('click', () => this.inputElement.focus());
-    }
+        inputElement.current?.focus();
+        container.addEventListener('click', () => inputElement.current?.focus());
+    };
 
-    // Update the executeCommand method to use the commands property
-    executeCommand(command: string) {
-        this.print(`> ${command}`, styles.command);
+    const executeCommandHandler = (command: string) => {
+        print(`> ${command}`, styles.command);
 
-        // Pass the print function and commands array to executeCommand
+        // Call the imported executeCommand function with the correct arguments
         executeCommand(
             command,
             (text: string, type?: string) => {
-                this.print(text, type || styles.output);
+                print(text, type || styles.output);
             },
-            this.commands // Use the commands property
+            commands.current
         );
-    }
-}
+    };
+
+    return null; // Since this component doesn't render anything directly
+};
+
+export default Terminal;
