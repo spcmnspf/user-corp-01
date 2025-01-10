@@ -1,6 +1,6 @@
 import styles from '../styles/terminalTS.module.css';
 import { data } from '../data/info';
-import { useAuthenticationStatus } from '@nhost/react';
+import { nhost } from '../utils/nhost'; // Adjust the import path as needed
 
 
 
@@ -129,8 +129,9 @@ export function executeCommand(input: string, print: (text: string, type?: strin
 
 
 
+
 async function getStatus() {
-    const { isAuthenticated } = useAuthenticationStatus();
+    const isAuthenticated = nhost.auth.isAuthenticated();
     if (isAuthenticated) {
         return 'System status: User is authenticated with Google.';
     } else {
