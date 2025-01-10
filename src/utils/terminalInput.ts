@@ -3,6 +3,7 @@ import styles from '../styles/terminalTS.module.css';
 import { data } from '../data/info';
 
 type CommandAction = (args?: string[], print?: (text: string, type?: string) => void) => void;
+const { isAuthenticated, error } = useAuthenticationStatus();
 
 interface Command {
     command: string;
@@ -43,7 +44,7 @@ const commands: Command[] = [
         desc: 'Show system status',
         hidden: false,
         action: (args, print) => {
-            const status = useGetStatus();
+            const status = getStatus();
             print(status);
         },
     },
@@ -122,8 +123,8 @@ export function executeCommand(input: string, print: (text: string, type?: strin
     }
 }
 
-function useAuthStatus() {
-    const { isAuthenticated, error } = useAuthenticationStatus();
+function getStatus() {
+    
 
     if (error) {
         return 'Error checking authentication: ' + error;
@@ -136,9 +137,6 @@ function useAuthStatus() {
     }
 }
 
-function useGetStatus() {
-    return useAuthStatus();
-}
 
 async function getUserInfo() {
     return 'User: Not authenticated\nPlease use the "login" command to authenticate.';
