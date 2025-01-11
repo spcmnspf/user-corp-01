@@ -13,6 +13,7 @@ async function fetchPuzzleData() {
 }
 
 // Generate grid and answer key
+// Generate grid and answer key
 export async function generatePuzzle() {
     const data = await fetchPuzzleData();
     if (!data) {
@@ -21,9 +22,9 @@ export async function generatePuzzle() {
 
     const { gridNumbers, answerKey } = data;
 
-    // Check if gridNumbers is defined and is an array
-    if (!Array.isArray(gridNumbers)) {
-        console.error('Error: gridNumbers is not defined or is not an array.');
+    // Check if gridNumbers is defined and is an array with 144 elements
+    if (!Array.isArray(gridNumbers) || gridNumbers.length !== 144) {
+        console.error('Error: gridNumbers is not defined or does not contain 144 elements.');
         return { error: 'No puzzle data available.' };
     }
 
