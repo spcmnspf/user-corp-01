@@ -4,23 +4,23 @@ type Grid = number[][];
 type Position = { row: number; col: number };
 
 function generateUniqueTwoDigitNumbers(): number[] {
-    const numbers: number[] = [];
-    const maxAttempts = 1000; // Safeguard to prevent infinite loops
-    let attempts = 0;
+  const numbers: number[] = [];
+  const maxAttempts = 1000; // Safeguard to prevent infinite loops
+  let attempts = 0;
 
-    while (numbers.length < 144 && attempts < maxAttempts) {
-        const num = Math.floor(Math.random() * 90) + 10; // Generates a number between 10 and 99
-        if (!numbers.includes(num)) {
-            numbers.push(num);
-        }
-        attempts++;
-    }
+  while (numbers.length < 144 && attempts < maxAttempts) {
+      const num = Math.floor(Math.random() * 99) + 1; // Generates a number between 1 and 99
+      if (!numbers.includes(num)) {
+          numbers.push(num);
+      }
+      attempts++;
+  }
 
-    if (numbers.length < 144) {
-        throw new Error("Failed to generate unique numbers within the allowed attempts.");
-    }
+  if (numbers.length < 144) {
+      throw new Error("Failed to generate unique numbers within the allowed attempts.");
+  }
 
-    return numbers;
+  return numbers;
 }
 
 function createGrid(): Grid {
