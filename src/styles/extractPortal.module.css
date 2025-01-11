@@ -30,7 +30,7 @@
     grid-template-rows: repeat(12, 1fr); /* 12 rows */
     gap: 4px; /* Adjust the gap between grid items */
     font-family: 'Inconsolata', monospace;
-    font-size: 1.2rem;
+    font-size: 1rem; /* Reduced font size to fit three-digit numbers */
     height: 60vh; /* Adjust the height to fit the container */
     width: 60vh; /* Make it a square */
     margin: 0 auto; /* Center the grid */
@@ -45,6 +45,7 @@
     align-items: center;
     justify-content: center;
     aspect-ratio: 1; /* Ensure each grid item is a square */
+    padding: 2px; /* Add padding to prevent text overflow */
 }
 
 .hint {

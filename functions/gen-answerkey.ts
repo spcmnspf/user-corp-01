@@ -3,10 +3,10 @@ import { Request, Response } from 'express';
 type Grid = string[][]; // Grid is now a 2D array of strings
 type Position = { row: number; col: number };
 
-function generateUniqueTwoDigitNumbers(): string[] {
+function generateUniqueThreeDigitNumbers(): string[] {
     const numbers: string[] = [];
-    for (let i = 1; i <= 99; i++) {
-        const paddedNum = i < 10 ? `0${i}` : `${i}`;
+    for (let i = 1; i <= 999; i++) {
+        const paddedNum = i < 10 ? `00${i}` : i < 100 ? `0${i}` : `${i}`;
         numbers.push(paddedNum);
     }
 
@@ -21,12 +21,12 @@ function generateUniqueTwoDigitNumbers(): string[] {
 }
 
 function createGrid(): Grid {
-  const numbers = generateUniqueTwoDigitNumbers();
-  const grid: Grid = [];
-  for (let i = 0; i < 12; i++) {
-      grid.push(numbers.slice(i * 12, (i + 1) * 12));
-  }
-  return grid;
+    const numbers = generateUniqueThreeDigitNumbers();
+    const grid: Grid = [];
+    for (let i = 0; i < 12; i++) {
+        grid.push(numbers.slice(i * 12, (i + 1) * 12));
+    }
+    return grid;
 }
 
 function getAdjacentPositions(pos: Position): Position[] {
@@ -44,68 +44,68 @@ function getAdjacentPositions(pos: Position): Position[] {
 }
 
 function findSixNumberSequence(grid: Grid): string[] {
-  const visited: Set<string> = new Set(); // Use Set<string> instead of Set<number>
-  const maxAttempts = 100; // Safeguard to prevent infinite loops
-  let attempts = 0;
+    const visited: Set<string> = new Set(); // Use Set<string> instead of Set<number>
+    const maxAttempts = 100; // Safeguard to prevent infinite loops
+    let attempts = 0;
 
-  while (attempts < maxAttempts) {
-      const startPos: Position = {
-          row: Math.floor(Math.random() * 12),
-          col: Math.floor(Math.random() * 12),
-      };
+    while (attempts < maxAttempts) {
+        const startPos: Position = {
+            row: Math.floor(Math.random() * 12),
+            col: Math.floor(Math.random() * 12),
+        };
 
-      let currentPos = startPos;
-      const sequence: string[] = [grid[currentPos.row][currentPos.col]];
-      visited.add(sequence[0]);
+        let currentPos = startPos;
+        const sequence: string[] = [grid[currentPos.row][currentPos.col]];
+        visited.add(sequence[0]);
 
-      while (sequence.length < 6) {
-          const adjacentPositions = getAdjacentPositions(currentPos);
-          const availablePositions = adjacentPositions.filter(pos => !visited.has(grid[pos.row][pos.col]));
+        while (sequence.length < 6) {
+            const adjacentPositions = getAdjacentPositions(currentPos);
+            const availablePositions = adjacentPositions.filter(pos => !visited.has(grid[pos.row][pos.col]));
 
-          if (availablePositions.length === 0) {
-              // If no available adjacent positions, restart the sequence
-              break;
-          }
+            if (availablePositions.length === 0) {
+                // If no available adjacent positions, restart the sequence
+                break;
+            }
 
-          const nextPos = availablePositions[Math.floor(Math.random() * availablePositions.length)];
-          sequence.push(grid[nextPos.row][nextPos.col]);
-          visited.add(sequence[sequence.length - 1]);
-          currentPos = nextPos;
-      }
+            const nextPos = availablePositions[Math.floor(Math.random() * availablePositions.length)];
+            sequence.push(grid[nextPos.row][nextPos.col]);
+            visited.add(sequence[sequence.length - 1]);
+            currentPos = nextPos;
+        }
 
-      if (sequence.length === 6) {
-          return sequence;
-      }
+        if (sequence.length === 6) {
+            return sequence;
+        }
 
-      attempts++;
-      visited.clear();
-  }
+        attempts++;
+        visited.clear();
+    }
 
-  throw new Error("Failed to generate a valid sequence within the allowed attempts.");
+    throw new Error("Failed to generate a valid sequence within the allowed attempts.");
 }
 
 export default async function handler(req: Request, res: Response) {
-  try {
-      console.log("Generating grid...");
-      const grid = createGrid();
-      console.log("Grid generated successfully.");
+    try {
+        console.log("Generating grid...");
+        const grid = createGrid();
+        console.log("Grid generated successfully.");
 
-      console.log("Finding six-number sequence...");
-      const sequence = findSixNumberSequence(grid);
-      console.log("Sequence found:", sequence);
+        console.log("Finding six-number sequence...");
+        const sequence = findSixNumberSequence(grid);
+        console.log("Sequence found:", sequence);
 
-      // Return the grid and sequence as a JSON response
-      res.status(200).json({
-          success: true,
-          grid, // Grid is now a 12x12 array of strings
-          sequence, // Sequence is now an array of strings
-      });
-  } catch (error) {
-      console.error("Error generating grid and sequence:", error);
-      res.status(500).json({ 
-          success: false,
-          error: "Internal Server Error",
-          message: error instanceof Error ? error.message : "An unknown error occurred.",
-      });
-  }
+        // Return the grid and sequence as a JSON response
+        res.status(200).json({
+            success: true,
+            grid, // Grid is now a 12x12 array of strings
+            sequence, // Sequence is now an array of strings
+        });
+    } catch (error) {
+        console.error("Error generating grid and sequence:", error);
+        res.status(500).json({ 
+            success: false,
+            error: "Internal Server Error",
+            message: error instanceof Error ? error.message : "An unknown error occurred.",
+        });
+    }
 }

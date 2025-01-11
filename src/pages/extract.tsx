@@ -4,8 +4,8 @@ import styles from '../styles/extractPortal.module.css';
 import { generatePuzzle, checkCode } from '../components/extractPortal';
 
 function ExtractPage() {
-  const [grid, setGrid] = useState<number[][] | null>(null);
-  const [sequence, setSequence] = useState<number[] | null>(null);
+  const [grid, setGrid] = useState<string[][] | null>(null); // Updated to string[][] for three-digit numbers
+  const [sequence, setSequence] = useState<string[] | null>(null); // Updated to string[] for three-digit numbers
   const [currentHint, setCurrentHint] = useState(0);
   const [userInput, setUserInput] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -31,7 +31,7 @@ function ExtractPage() {
 
   const handleCheckCode = () => {
     if (sequence) {
-      const numbers = userInput.split(',').map((num) => parseInt(num.trim(), 10));
+      const numbers = userInput.split(',').map((num) => num.trim()); // No need to parse as numbers
       const result = checkCode(numbers, sequence, currentHint);
       if (result.valid) {
         setCurrentHint(result.currentHint);
