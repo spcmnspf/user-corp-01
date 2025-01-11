@@ -40,3 +40,11 @@ next-env.d.ts
 .nhost/
 # Local Netlify folder
 .netlify
+
+# Build artifacts
+dist/
+build/
+*.log
+
+# Docker Compose overrides
+docker-compose.override.yml
