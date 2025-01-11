@@ -5,25 +5,20 @@ type Position = { row: number; col: number };
 
 function generateUniqueTwoDigitNumbers(): string[] {
     const numbers: string[] = [];
-    const maxAttempts = 5000; // Increased safeguard to prevent infinite loops
-    let attempts = 0;
-  
-    while (numbers.length < 144 && attempts < maxAttempts) {
-        const num = Math.floor(Math.random() * 99) + 1; // Generates a number between 1 and 99
-        const paddedNum = num < 10 ? `0${num}` : `${num}`; // Pad single-digit numbers with a leading zero
-        if (!numbers.includes(paddedNum)) {
-            numbers.push(paddedNum);
-        }
-        attempts++;
+    for (let i = 1; i <= 99; i++) {
+        const paddedNum = i < 10 ? `0${i}` : `${i}`;
+        numbers.push(paddedNum);
     }
-  
-    if (numbers.length < 144) {
-        throw new Error("Failed to generate unique numbers within the allowed attempts.");
+
+    // Shuffle the array using the Fisher-Yates algorithm
+    for (let i = numbers.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
     }
-  
-    return numbers;
-  }
-  
+
+    // Take the first 144 numbers
+    return numbers.slice(0, 144);
+}
 
 function createGrid(): Grid {
   const numbers = generateUniqueTwoDigitNumbers();
