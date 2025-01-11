@@ -50,8 +50,11 @@ body {
 }
 
 .terminal-container {
-    width: min(90vw, 1200px);
-    height: 600px;
+    /* Size */
+    width: 90%; /* Increased width for better spacing */
+    max-width: 1200px; /* Limit maximum width */
+    height: 60%; /* Increased height to fit more content */
+
     margin: 2rem auto;
     background: rgba(0, 0, 0, 0.9);
     border: 1px solid #00fff2;

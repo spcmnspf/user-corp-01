@@ -1,0 +1,29 @@
+.container {
+    /* Position */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0; /* Remove margin from .terminal-container */
+
+    /* Size */
+    width: 90%; /* Increased width for better spacing */
+    max-width: 1200px; /* Limit maximum width */
+    height: 60%; /* Increased height to fit more content */
+
+    /* Background and Border */
+    background: rgba(0, 0, 0, 0.9);
+    border: 1px solid #00fff2;
+    border-radius: 8px;
+    box-shadow: rgba(0, 255, 242, 0.2) 0px 0px 20px;
+
+    /* Layout */
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem; /* Increased padding for better spacing */
+    overflow: hidden;
+
+    /* Text and Font */
+    color: #00fff2;
+    /* font-family: 'Courier New', monospace; */
+}
