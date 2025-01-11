@@ -2,7 +2,7 @@ import { useAuthenticationStatus, useSignOut } from '@nhost/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { twMerge } from 'tailwind-merge';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import Modal from 'react-modal';
 import { nhost } from '@/utils/nhost';
 import { generateNodeName } from '@/utils/generateNodeName';
