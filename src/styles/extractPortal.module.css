@@ -18,17 +18,11 @@
     color: #00fff2;
 }
 
-/* extractPortal.module.css */
-
-/* .container {
-    background: rgba(12, 74, 189, 0.9);
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 150, 255, 0.3);
-    text-align: center;
-    width: 100%;
-    max-width: 640px;
-} */
+.errorContainer {
+    color: red;
+    margin-bottom: 20px;
+    font-family: 'Inconsolata', monospace;
+}
 
 .numberGrid {
     display: grid;

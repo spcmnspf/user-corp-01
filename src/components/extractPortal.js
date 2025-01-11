@@ -4,28 +4,45 @@
 async function fetchPuzzleData() {
     try {
         const response = await fetch('https://sbnpjmkqdoefeelkfrhy.functions.us-west-2.nhost.run/v1/gen-answerkey');
+
+        // Check if the response status is 500
+        if (response.status === 500) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to generate a valid sequence');
+        }
+
+        // Check if the response is OK (status 200-299)
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
         const data = await response.json();
         return data;
     } catch (error) {
         console.error('Error fetching puzzle data:', error);
-        return null;
+        return { error: error.message || 'Could not load puzzle data.' };
     }
 }
 
 // Generate grid and answer key
-// Generate grid and answer key
 export async function generatePuzzle() {
     const data = await fetchPuzzleData();
-    if (!data) {
-        return { error: 'Could not load puzzle data.' };
+
+    // Check if there was an error fetching the data
+    if (data.error) {
+        console.error('Error:', data.error);
+        displayErrorMessage(data.error);
+        return { error: data.error };
     }
 
     const { gridNumbers, answerKey } = data;
 
     // Check if gridNumbers is defined and is an array with 144 elements
     if (!Array.isArray(gridNumbers) || gridNumbers.length !== 144) {
-        console.error('Error: gridNumbers is not defined or does not contain 144 elements.');
-        return { error: 'No puzzle data available.' };
+        const errorMessage = 'Error: gridNumbers is not defined or does not contain 144 elements.';
+        console.error(errorMessage);
+        displayErrorMessage(errorMessage);
+        return { error: errorMessage };
     }
 
     // Create grid HTML
@@ -57,7 +74,10 @@ export async function generatePuzzle() {
 
         return { answerKey };
     } else {
-        return { error: 'Grid element not found.' };
+        const errorMessage = 'Grid element not found.';
+        console.error(errorMessage);
+        displayErrorMessage(errorMessage);
+        return { error: errorMessage };
     }
 }
 
@@ -110,4 +130,13 @@ export function checkCode(numbers, answerKey, currentHint) {
     }
 
     return { valid: true, currentHint };
+}
+
+// Display error message to the user
+function displayErrorMessage(message) {
+    const errorContainer = document.getElementById('error-container');
+    if (errorContainer) {
+        errorContainer.textContent = message;
+        errorContainer.style.display = 'block';
+    }
 }
