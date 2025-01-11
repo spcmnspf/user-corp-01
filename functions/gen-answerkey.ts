@@ -8,10 +8,8 @@ export default async function handler(req, res) {
     [possibleNumbers[i], possibleNumbers[j]] = [possibleNumbers[j], possibleNumbers[i]];
   }
 
-  // Take first 64 numbers (8x8 grid)
-  const gridNumbers = possibleNumbers.slice(0, 64).map((n) => ({
-    value: n,
-  }));
+  // Take first 144 numbers (12x12 grid)
+  const gridNumbers = possibleNumbers.slice(0, 144);
 
   // Create chain sequence (ensure numbers are adjacent and unique)
   const directions = [
@@ -20,28 +18,41 @@ export default async function handler(req, res) {
     { row: 0, col: -1 }, // Left
     { row: -1, col: 0 }, // Up
   ];
-  const startIndex = Math.floor(Math.random() * 59); // Leave room for chain
+
+  const startIndex = Math.floor(Math.random() * 130); // Leave room for chain
   let currentIndex = startIndex;
   const sequence = [gridNumbers[currentIndex]];
+  const usedNumbers = new Set<number>([gridNumbers[currentIndex]]);
 
   for (let i = 1; i < 6; i++) {
     let nextIndex: number;
+    let direction;
+    let attempts = 0;
+
     do {
-      const direction = directions[Math.floor(Math.random() * directions.length)];
-      const nextRow = Math.floor(currentIndex / 8) + direction.row;
-      const nextCol = (currentIndex % 8) + direction.col;
-      nextIndex = nextRow * 8 + nextCol;
+      direction = directions[Math.floor(Math.random() * directions.length)];
+      const currentRow = Math.floor(currentIndex / 12);
+      const currentCol = currentIndex % 12;
+      const nextRow = currentRow + direction.row;
+      const nextCol = currentCol + direction.col;
+
+      nextIndex = nextRow * 12 + nextCol;
+      attempts++;
+
+      // Early exit if too many attempts (to avoid infinite loops)
+      if (attempts > 100) {
+        throw new Error("Failed to find a valid sequence");
+      }
     } while (
       nextIndex < 0 ||
-      nextIndex >= 64 ||
-      sequence.some((num) => num.value === gridNumbers[nextIndex].value)
+      nextIndex >= 144 ||
+      usedNumbers.has(gridNumbers[nextIndex])
     );
 
     currentIndex = nextIndex;
     sequence.push(gridNumbers[currentIndex]);
+    usedNumbers.add(gridNumbers[currentIndex]);
   }
 
-  const answerKey = sequence.map((n) => n.value);
-
-  return res.status(200).json({ answerKey });
+  return res.status(200).json({ gridNumbers, answerKey: sequence });
 }
