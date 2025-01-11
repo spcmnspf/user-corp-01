@@ -6,7 +6,6 @@ import { useEffect, useState, useRef } from 'react';
 import Modal from 'react-modal';
 import { nhost } from '@/utils/nhost';
 import { generateNodeName } from '@/utils/generateNodeName';
-// import Terminal from '@/utils/terminalTS';
 
 declare global {
   interface Window {
@@ -20,7 +19,6 @@ export function Header() {
   const { signOut } = useSignOut();
   const [nodeName, setNodeName] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const terminalContainerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     setNodeName(generateNodeName());
@@ -51,7 +49,7 @@ export function Header() {
   return (
     <header className="sticky border-b bg-header border-b-brd">
       <div className="flex flex-row max-w-5xl p-4 mx-auto place-content-between">
-        <Link href="/" passHref>
+        <Link href="/" passHref legacyBehavior>
           <a className="self-center font-medium text-white text-md hover:underline">
             {nodeName}
           </a>
@@ -62,14 +60,13 @@ export function Header() {
           aria-label="Main navigation"
         >
           <ul className="grid items-center w-full grid-flow-col gap-2 text-sm font-medium list-none text-list">
-            {/* Example navigation item */}
             <li
               className={twMerge(
                 'hover:text-white',
                 asPath === '/about' && 'text-white',
               )}
             >
-              <Link href="/about" passHref>
+              <Link href="/about" passHref legacyBehavior>
                 <a className="px-2">About</a>
               </Link>
             </li>
@@ -102,9 +99,6 @@ export function Header() {
           {isLoading && <div className="w-16" />}
         </div>
       </div>
-
-      {/* Terminal Container */}
-      <div ref={terminalContainerRef}></div>
 
       <Modal
         isOpen={isModalOpen}
