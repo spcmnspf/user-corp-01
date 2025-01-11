@@ -167,19 +167,31 @@ export default async function handler(req, res) {
         }
       }
 
-      // If no valid sequence is found after trying all directions, choose a default direction
+      // If no valid sequence is found after trying all directions, generate a simple horizontal sequence
       if (!sequence) {
         sequence = [gridNumbers[startIndex]];
         let currentRow = startRow;
         let currentCol = startCol;
 
         for (let i = 1; i < 6; i++) {
-          currentRow += safeDirections[0].row; // Default to the first safe direction (right)
-          currentCol += safeDirections[0].col;
+          currentCol += 1; // Move right
+          if (currentCol >= 12) {
+            currentCol = 0; // Wrap around to the next row
+            currentRow += 1;
+          }
+          if (currentRow >= 12) {
+            currentRow = 0; // Wrap around to the top
+          }
           const nextIndex = currentRow * 12 + currentCol;
           sequence.push(gridNumbers[nextIndex]);
         }
       }
+    }
+
+    // Ensure the sequence has exactly 6 numbers
+    if (sequence.length !== 6) {
+      console.error("Generated sequence does not have 6 numbers. Falling back to a default sequence.");
+      sequence = [10, 11, 12, 13, 14, 15]; // Default fallback sequence
     }
 
     return res.status(200).json({ gridNumbers, answerKey: sequence });
