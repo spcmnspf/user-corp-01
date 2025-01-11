@@ -81,11 +81,14 @@ export default async function handler(req: Request, res: Response) {
 
         // Return the grid and sequence as a JSON response
         res.status(200).json({
-            grid,
-            sequence,
+            grid, // Keep the grid as a 12x12 array
+            sequence, // Keep the sequence as is
         });
     } catch (error) {
         console.error("Error generating grid and sequence:", error);
-        res.status(500).json({ error: "Internal Server Error" });
+        res.status(500).json({ 
+            error: "Internal Server Error",
+            message: error instanceof Error ? error.message : "An unknown error occurred.",
+        });
     }
 }

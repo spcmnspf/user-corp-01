@@ -35,6 +35,7 @@ function ExtractPage() {
       const result = checkCode(numbers, sequence, currentHint);
       if (result.valid) {
         setCurrentHint(result.currentHint);
+        setErrorMessage(''); // Clear any previous error message
       } else {
         setErrorMessage(result.error || 'Invalid sequence. Try again.');
       }
