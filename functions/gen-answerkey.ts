@@ -4,25 +4,26 @@ type Grid = string[][]; // Grid is now a 2D array of strings
 type Position = { row: number; col: number };
 
 function generateUniqueTwoDigitNumbers(): string[] {
-  const numbers: string[] = [];
-  const maxAttempts = 1000; // Safeguard to prevent infinite loops
-  let attempts = 0;
-
-  while (numbers.length < 144 && attempts < maxAttempts) {
-      const num = Math.floor(Math.random() * 99) + 1; // Generates a number between 1 and 99
-      const paddedNum = num < 10 ? `0${num}` : `${num}`; // Pad single-digit numbers with a leading zero
-      if (!numbers.includes(paddedNum)) {
-          numbers.push(paddedNum);
-      }
-      attempts++;
+    const numbers: string[] = [];
+    const maxAttempts = 5000; // Increased safeguard to prevent infinite loops
+    let attempts = 0;
+  
+    while (numbers.length < 144 && attempts < maxAttempts) {
+        const num = Math.floor(Math.random() * 99) + 1; // Generates a number between 1 and 99
+        const paddedNum = num < 10 ? `0${num}` : `${num}`; // Pad single-digit numbers with a leading zero
+        if (!numbers.includes(paddedNum)) {
+            numbers.push(paddedNum);
+        }
+        attempts++;
+    }
+  
+    if (numbers.length < 144) {
+        throw new Error("Failed to generate unique numbers within the allowed attempts.");
+    }
+  
+    return numbers;
   }
-
-  if (numbers.length < 144) {
-      throw new Error("Failed to generate unique numbers within the allowed attempts.");
-  }
-
-  return numbers;
-}
+  
 
 function createGrid(): Grid {
   const numbers = generateUniqueTwoDigitNumbers();
