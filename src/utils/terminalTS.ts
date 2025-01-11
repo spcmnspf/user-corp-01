@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react'; // Add useCallback
 import styles from '../styles/terminalTS.module.css';
 import { executeCommand, getCommands, useTerminateSession, Command } from './terminalInput';
 
@@ -10,7 +10,8 @@ const Terminal: React.FC<{ container: HTMLElement }> = ({ container }) => {
     const commands = useRef<Command[]>([]);
     const terminateSession = useTerminateSession();
 
-    const print = (text: string, type: string = styles.output) => {
+    // Memoize print with useCallback
+    const print = useCallback((text: string, type: string = styles.output) => {
         if (type === 'clear') {
             // Clear the terminal output, but keep welcome messages
             if (outputElement.current) {
@@ -35,9 +36,10 @@ const Terminal: React.FC<{ container: HTMLElement }> = ({ container }) => {
             container.scrollTop = container.scrollHeight;
             outputElement.current!.scrollTop = outputElement.current!.scrollHeight;
         });
-    };
+    }, [container]); // Add container as a dependency
 
-    const executeCommandHandler = (command: string) => {
+    // Memoize executeCommandHandler with useCallback
+    const executeCommandHandler = useCallback((command: string) => {
         print(`> ${command}`, styles.command);
 
         executeCommand(
@@ -47,14 +49,14 @@ const Terminal: React.FC<{ container: HTMLElement }> = ({ container }) => {
             },
             commands.current
         );
-    };
+    }, [print]); // Add print as a dependency
 
     useEffect(() => {
         const printWelcome = () => {
             print('Terminal initialized...', `${styles.centered} welcome-message`);
             print('Type "help" for available commands.', `${styles.centered} welcome-message`);
         };
-    
+
         const setupEventListeners = () => {
             inputElement.current?.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
@@ -67,11 +69,11 @@ const Terminal: React.FC<{ container: HTMLElement }> = ({ container }) => {
                     }
                 }
             });
-    
+
             inputElement.current?.focus();
             container.addEventListener('click', () => inputElement.current?.focus());
         };
-    
+
         const setupTerminal = () => {
             container.innerHTML = `
                 <div class="${styles.terminalBody} ${styles.local}">
@@ -82,14 +84,14 @@ const Terminal: React.FC<{ container: HTMLElement }> = ({ container }) => {
                     </div>
                 </div>
             `;
-    
+
             outputElement.current = container.querySelector(`.${styles.terminalOutput}`) as HTMLElement;
             inputElement.current = container.querySelector(`.${styles.terminalInput}`) as HTMLInputElement;
-    
+
             setupEventListeners();
             printWelcome();
         };
-    
+
         commands.current = getCommands(terminateSession);
         setupTerminal();
     }, [terminateSession, container, executeCommandHandler, print]); // Add executeCommandHandler and print to the dependency array
