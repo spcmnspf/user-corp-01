@@ -131,23 +131,54 @@ export default async function handler(req, res) {
       const startCol = Math.floor(Math.random() * maxStartCol);
       const startIndex = startRow * 12 + startCol;
 
-      // Choose a random direction (right or down) to ensure the sequence stays within bounds
+      // Safe directions (right, down, left, up)
       const safeDirections = [
         { row: 0, col: 1 }, // Right
         { row: 1, col: 0 }, // Down
+        { row: 0, col: -1 }, // Left
+        { row: -1, col: 0 }, // Up
       ];
-      const direction = safeDirections[Math.floor(Math.random() * safeDirections.length)];
 
-      // Generate the sequence
-      sequence = [gridNumbers[startIndex]];
-      let currentRow = startRow;
-      let currentCol = startCol;
+      // Try each direction until a valid sequence is found
+      for (const direction of safeDirections) {
+        sequence = [gridNumbers[startIndex]];
+        let currentRow = startRow;
+        let currentCol = startCol;
+        let isValid = true;
 
-      for (let i = 1; i < 6; i++) {
-        currentRow += direction.row;
-        currentCol += direction.col;
-        const nextIndex = currentRow * 12 + currentCol;
-        sequence.push(gridNumbers[nextIndex]);
+        for (let i = 1; i < 6; i++) {
+          currentRow += direction.row;
+          currentCol += direction.col;
+
+          // Check if the next cell is within the grid bounds
+          if (currentRow >= 0 && currentRow < 12 && currentCol >= 0 && currentCol < 12) {
+            const nextIndex = currentRow * 12 + currentCol;
+            sequence.push(gridNumbers[nextIndex]);
+          } else {
+            isValid = false;
+            break;
+          }
+        }
+
+        if (isValid) {
+          break;
+        } else {
+          sequence = null; // Reset sequence if this direction is invalid
+        }
+      }
+
+      // If no valid sequence is found after trying all directions, choose a default direction
+      if (!sequence) {
+        sequence = [gridNumbers[startIndex]];
+        let currentRow = startRow;
+        let currentCol = startCol;
+
+        for (let i = 1; i < 6; i++) {
+          currentRow += safeDirections[0].row; // Default to the first safe direction (right)
+          currentCol += safeDirections[0].col;
+          const nextIndex = currentRow * 12 + currentCol;
+          sequence.push(gridNumbers[nextIndex]);
+        }
       }
     }
 
