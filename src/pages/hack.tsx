@@ -1,7 +1,7 @@
 import BaseLayout from '@/layouts/BaseLayout';
 import { ReactElement } from 'react';
 import CyberpunkPortal from '../components/hackPortal';
-import styles from '../styles/hackPortal.module.css';
+// import styles from '../styles/hackPortal.module.css';
 
 function HackPage() {
   return (

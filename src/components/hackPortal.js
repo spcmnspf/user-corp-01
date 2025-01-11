@@ -1,5 +1,6 @@
 // components/hackPortal.js
 import { useState } from 'react';
+import Image from 'next/image'; // Import the Image component
 import styles from '../styles/hackPortal.module.css';
 
 const descriptions = {
@@ -133,21 +134,26 @@ export default function HackPortal() {
       <div className={styles.content}>
         {/* Sidebar: Company List */}
         <div className={styles.sidebar}>
-  {Object.keys(descriptions).map((companyName) => (
-    <div
-      key={companyName}
-      className={`${styles.sidebarItem} ${selectedCompany === companyName ? styles.selected : ''}`}
-      onClick={() => handleCompanyClick(companyName)}
-    >
-      {companyName}
-    </div>
-  ))}
-</div>
+          {Object.keys(descriptions).map((companyName) => (
+            <div
+              key={companyName}
+              className={`${styles.sidebarItem} ${selectedCompany === companyName ? styles.selected : ''}`}
+              onClick={() => handleCompanyClick(companyName)}
+            >
+              {companyName}
+            </div>
+          ))}
+        </div>
         {/* Main Content: Description Panel */}
         <div className={styles.main}>
           {selectedCompany && (
             <>
-              <img src={descriptions[selectedCompany].image} alt={selectedCompany} />
+              <Image
+                src={descriptions[selectedCompany].image}
+                alt={selectedCompany}
+                width={500} // Set appropriate width
+                height={300} // Set appropriate height
+              />
               <p>{descriptions[selectedCompany].text}</p>
             </>
           )}
@@ -156,12 +162,12 @@ export default function HackPortal() {
 
       {/* Footer: Generate Code Button and Output */}
       <div className={styles.footer}>
-  <button className={styles.button} onClick={generateCode}>
-    Generate Code
-  </button>
-  {error && <div className={styles.error}>{error}</div>}
-  {code && <div className={styles.codeOutput}>{code}</div>}
-        </div>
+        <button className={styles.button} onClick={generateCode}>
+          Generate Code
+        </button>
+        {error && <div className={styles.error}>{error}</div>}
+        {code && <div className={styles.codeOutput}>{code}</div>}
+      </div>
     </div>
   );
 }

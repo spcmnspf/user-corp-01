@@ -10,7 +10,6 @@ import { NextPage } from 'next';
 import type { AppProps } from 'next/app';
 import { ReactElement } from 'react';
 
-<link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;700&display=swap" rel="stylesheet" />
 
 export type NextPageWithLayout = NextPage & {
   getLayout?: (page: ReactElement) => ReactElement;
