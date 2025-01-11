@@ -35,15 +35,18 @@ export async function generatePuzzle() {
         return { error: data.error };
     }
 
-    const { gridNumbers, answerKey } = data;
+    const { grid, sequence } = data;
 
-    // Check if gridNumbers is defined and is an array with 144 elements
-    if (!Array.isArray(gridNumbers) || gridNumbers.length !== 144) {
-        const errorMessage = 'Error: gridNumbers is not defined or does not contain 144 elements.';
+    // Check if grid is defined and is a 12x12 grid
+    if (!Array.isArray(grid) || grid.length !== 12 || grid[0].length !== 12) {
+        const errorMessage = 'Error: grid is not defined or is not a 12x12 grid.';
         console.error(errorMessage);
         displayErrorMessage(errorMessage);
         return { error: errorMessage };
     }
+
+    // Flatten the grid for display
+    const gridNumbers = grid.flat();
 
     // Create grid HTML
     const gridElement = document.getElementById('number-grid');
@@ -59,20 +62,20 @@ export async function generatePuzzle() {
 
         // Highlight start and end
         const startElement = Array.from(document.querySelectorAll('.grid-number'))
-            .find(el => el.textContent == answerKey[0]);
+            .find(el => el.textContent == sequence[0]);
         const endElement = Array.from(document.querySelectorAll('.grid-number'))
-            .find(el => el.textContent == answerKey[5]);
+            .find(el => el.textContent == sequence[5]);
 
         if (startElement) startElement.classList.add('hint-start');
         if (endElement) endElement.classList.add('hint-end');
 
         document.getElementById('hint').textContent = 
-            `Find the chain of numbers starting at ${answerKey[0]} and ending at ${answerKey[5]}`;
+            `Find the chain of numbers starting at ${sequence[0]} and ending at ${sequence[5]}`;
 
         // Initialize number set tracker
-        updateNumberSetTracker(answerKey, 0);
+        updateNumberSetTracker(sequence, 0);
 
-        return { answerKey };
+        return { gridNumbers, answerKey: sequence };
     } else {
         const errorMessage = 'Grid element not found.';
         console.error(errorMessage);
