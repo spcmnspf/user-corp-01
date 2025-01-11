@@ -35,7 +35,7 @@ export async function generatePuzzle() {
         gridNumbers.forEach(num => {
             const element = document.createElement('div');
             element.className = 'grid-number';
-            element.textContent = num.value;
+            element.textContent = num; // Directly use the number
             gridElement.appendChild(element);
         });
 
