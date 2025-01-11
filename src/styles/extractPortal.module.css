@@ -27,3 +27,60 @@
     color: #00fff2;
     /* font-family: 'Courier New', monospace; */
 }
+
+/* extractPortal.module.css */
+
+/* .container {
+    background: rgba(12, 74, 189, 0.9);
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 150, 255, 0.3);
+    text-align: center;
+    width: 100%;
+    max-width: 640px;
+} */
+
+.numberGrid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
+    margin: 2rem 0;
+    font-family: 'Inconsolata', monospace;
+    font-size: 1.2rem;
+}
+
+.gridNumber {
+    background: rgba(0, 0, 0, 0.7);
+    color: #33ff33;
+    padding: 8px 4px;
+    text-align: center;
+    border: 1px solid #00fff2;
+}
+
+.hint {
+    color: #33ff33;
+    margin: 1rem 0;
+    font-family: 'Inconsolata', monospace;
+}
+
+.numberSetTracker {
+    color: #33ff33;
+    margin: 1rem 0;
+    font-family: 'Inconsolata', monospace;
+}
+
+.gridNumber.hintStart {
+    border-color: orange;
+    background-color: black;
+    box-shadow: 0 0 10px rgba(255, 165, 0, 0.5);
+}
+
+.gridNumber.hintEnd {
+    border-color: orange;
+    background-color: black;
+    box-shadow: 0 0 10px rgba(255, 165, 0, 0.5);
+}
+
+.gridNumber.correct {
+    border-color: yellow;
+}
