@@ -4,8 +4,8 @@ import styles from '../styles/extractPortal.module.css';
 import { generatePuzzle, checkCode } from '../components/extractPortal';
 
 function ExtractPage() {
-  const [grid, setGrid] = useState<string[][] | null>(null); // Updated to string[][] for three-digit numbers
-  const [sequence, setSequence] = useState<string[] | null>(null); // Updated to string[] for three-digit numbers
+  const [grid, setGrid] = useState<string[][] | null>(null);
+  const [sequence, setSequence] = useState<string[] | null>(null);
   const [currentHint, setCurrentHint] = useState(0);
   const [userInput, setUserInput] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -14,10 +14,9 @@ function ExtractPage() {
     const initPuzzle = async () => {
       const result = await generatePuzzle();
       if (result.error) {
-        console.error(result.error); // Log the error
-        setErrorMessage(result.error); // Display error to the user
+        console.error(result.error);
+        setErrorMessage(result.error);
       } else if (result.gridNumbers && result.answerKey) {
-        // Convert the flat array into a 12x12 grid
         const grid = [];
         for (let i = 0; i < 12; i++) {
           grid.push(result.gridNumbers.slice(i * 12, (i + 1) * 12));
@@ -31,67 +30,109 @@ function ExtractPage() {
 
   const handleCheckCode = () => {
     if (sequence) {
-      const numbers = userInput.split(',').map((num) => num.trim()); // No need to parse as numbers
+      const numbers = userInput.split(/\s+/).map((num) => num.trim());
       const result = checkCode(numbers, sequence, currentHint);
       if (result.valid) {
         setCurrentHint(result.currentHint);
-        setErrorMessage(''); // Clear any previous error message
+        setErrorMessage(result.error || '');
+
+        // Check if the entire sequence has been guessed
+        if (result.currentHint === sequence.length) {
+          setUserInput(''); // Clear the input field
+          setErrorMessage('Congratulations! Chain completed!');
+        }
       } else {
+        setCurrentHint(0); // Reset to the beginning if the guess is incorrect
         setErrorMessage(result.error || 'Invalid sequence. Try again.');
       }
     }
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUserInput(e.target.value);
+    setErrorMessage(''); // Clear the error message when the input changes
+  };
+
+  const handleInputClick = () => {
+    setErrorMessage(''); // Clear the error message when the input is clicked
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleCheckCode(); // Trigger code check when Enter is pressed
+    }
+  };
+
   return (
     <div className={styles.container}>
-      {/* Error container for displaying error messages */}
-      {errorMessage && (
-        <div id="error-container" className={styles.errorContainer}>
-          {errorMessage}
-        </div>
-      )}
-
       {/* Grid for displaying numbers */}
       {grid && (
         <div id="number-grid" className={styles.numberGrid}>
           {grid.map((row, rowIndex) =>
-            row.map((number, colIndex) => (
-              <div
-                key={`${rowIndex}-${colIndex}`}
-                className={`${styles.gridNumber} ${
-                  sequence && number === sequence[0] ? styles.hintStart : ''
-                } ${
-                  sequence && number === sequence[5] ? styles.hintEnd : ''
-                }`}
-              >
-                {number}
-              </div>
-            ))
+            row.map((number, colIndex) => {
+              // Check if the number is part of the correctly guessed sequence
+              const isCorrect = sequence && sequence.slice(0, currentHint).includes(number);
+              const isFirstNumber = sequence && number === sequence[0];
+              const isLastNumber = sequence && number === sequence[sequence.length - 1];
+
+              return (
+                <div
+                  key={`${rowIndex}-${colIndex}`}
+                  className={`${styles.gridNumber} ${
+                    isFirstNumber ? styles.hintStart : ''
+                  } ${
+                    isLastNumber ? styles.hintEnd : ''
+                  } ${
+                    isCorrect && !isFirstNumber && !isLastNumber ? styles.correct : '' // Apply correct class only if it's not the first or last number
+                  }`}
+                >
+                  {number}
+                </div>
+              );
+            })
           )}
         </div>
       )}
 
-      {/* Tracker for displaying the current sequence */}
+      {/* Tracker, error, and hint container */}
       {sequence && (
-        <div id="number-set-tracker" className={styles.numberSetTracker}>
-          Sequence: {sequence.slice(0, currentHint + 1).join(', ')}
+        <div className={styles.trackerAndHintContainer}>
+          <div id="number-set-tracker" className={styles.numberSetTracker}>
+            Sequence: {sequence.slice(0, currentHint).join(', ')}
+          </div>
+          {errorMessage && (
+            <div id="error-container" className={styles.errorContainer}>
+              {errorMessage}
+            </div>
+          )}
+          <p id="hint" className={styles.hint}>
+  {sequence ? (
+    <>
+      Code starts at{' '}
+      <span className={`${styles.hintBox} ${styles.hintStart}`}>
+        {sequence[0]}
+      </span>{' '}
+      and ends at{' '}
+      <span className={`${styles.hintBox} ${styles.hintEnd}`}>
+        {sequence[sequence.length - 1]}
+      </span>
+    </>
+  ) : (
+    'Loading...'
+  )}
+</p>
         </div>
       )}
 
-      {/* Hint for guiding the user */}
-      <p id="hint" className={styles.hint}>
-        {sequence
-          ? `Find the chain of numbers starting at ${sequence[0]} and ending at ${sequence[5]}`
-          : 'Loading...'}
-      </p>
-
-      {/* Input and button for user interaction */}
+      {/* Input and button container */}
       <div className={styles.inputContainer}>
         <input
           type="text"
           value={userInput}
-          onChange={(e) => setUserInput(e.target.value)}
-          placeholder="Enter numbers separated by commas"
+          onChange={handleInputChange} // Clear error on input change
+          onClick={handleInputClick} // Clear error on input click
+          onKeyDown={handleKeyDown} // Listen for Enter key press
+          placeholder="Enter code (e.g., 001 002 003)"
           className={styles.inputField}
         />
         <button onClick={handleCheckCode} className={styles.checkButton}>

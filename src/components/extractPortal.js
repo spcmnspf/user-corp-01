@@ -50,28 +50,27 @@ export async function generatePuzzle() {
 }
 
 // Check the code entered by the user
+// Check the code entered by the user
 export function checkCode(numbers, answerKey, currentHint) {
-    const requiredLength = currentHint + 2; // Start with 2 numbers, then 3, then 4, etc.
-    if (numbers.length !== requiredLength) {
-        return { 
-            valid: false, 
-            currentHint, 
-            error: `Error: You must enter the first ${requiredLength} numbers in the sequence.` 
-        };
-    }
-
+    // Check if the user's input matches the sequence from the beginning
     for (let i = 0; i < numbers.length; i++) {
         if (numbers[i] !== answerKey[i]) {
             return { 
                 valid: false, 
-                currentHint, 
+                currentHint: 0, // Reset to the beginning if the guess is incorrect
                 error: 'Error: Incorrect sequence. Try again.' 
             };
         }
     }
 
-    currentHint++;
-    if (currentHint === 5) {
+    // Update the current hint position
+    const newHint = numbers.length;
+    if (newHint > currentHint) {
+        currentHint = newHint;
+    }
+
+    // Check if the entire sequence has been guessed
+    if (currentHint === answerKey.length) {
         return { 
             valid: true, 
             currentHint, 
@@ -81,7 +80,7 @@ export function checkCode(numbers, answerKey, currentHint) {
         return { 
             valid: true, 
             currentHint, 
-            error: `Next number in the sequence: ${answerKey[currentHint]}` 
+            error: 'Sequence correct so far. Keep going!' // Generic message without revealing the next number
         };
     }
 }
