@@ -1,21 +1,21 @@
 .container {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    margin: 0;
-    width: 90%;
-    max-width: 1200px;
-    height: 80%; /* Increased height to fit the 12x12 grid and other elements */
-    background: rgba(0, 0, 0, 0.9);
-    border: 1px solid #00fff2;
-    border-radius: 8px;
-    box-shadow: rgba(0, 255, 242, 0.2) 0px 0px 20px;
-    display: flex;
-    flex-direction: column;
-    padding: 1.5rem;
-    overflow: hidden;
-    color: #00fff2;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  width: 90%;
+  max-width: 1200px;
+  height: 80%; /* Increased height to fit the 12x12 grid and other elements */
+  background: rgba(0, 0, 0, 0.9);
+  border: 1px solid #00fff2;
+  border-radius: 8px;
+  box-shadow: rgba(0, 255, 242, 0.2) 0px 0px 20px;
+  display: flex;
+  flex-direction: column; /* Ensure children are stacked vertically */
+  padding: 1rem;
+  overflow: hidden;
+  color: #00fff2;
 }
 
 .errorContainer {
@@ -121,12 +121,17 @@
 }
 
 .inputContainer {
-    margin-top: 1rem;
+    margin-top: auto; /* Push the input container to the bottom */
+    padding: 1rem 0; /* Add padding to the top and bottom */
     display: flex;
-    align-items: center; /* Vertically center the items */
-    gap: 0.5rem; /* Add spacing between the items */
-    justify-content: center; /* Center the container horizontally */
-}
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    position: sticky; /* Keep the input container fixed at the bottom */
+    bottom: 0; /* Stick to the bottom */
+    background: rgba(0, 0, 0, 0.9); /* Match the background color of the parent container */
+    z-index: 1; /* Ensure it stays above other elements */
+  }
 
 .inputField {
     padding: 0.5rem;
@@ -151,3 +156,74 @@
 .checkButton:hover {
     background: rgba(0, 150, 255, 0.3);
 }
+
+/* Add these styles to extractPortal.module.css */
+
+.informationContainer {
+    width: 60vh; /* Match the width of the numberGrid */
+    margin: 1rem auto; /* Center the container */
+    text-align: center; /* Center the text inside the container */
+    font-family: 'Inconsolata', monospace;
+    font-size: 1rem;
+    /* padding: 0.5rem; */
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.7);
+    /* border: 1px solid #00fff2;
+    box-shadow: 0 0 10px #00fff2; */
+  }
+  
+  .error {
+    color: #ff3333; /* Neon red for error messages */
+  }
+  
+  .success {
+    color: #33ff33; /* Neon green for success messages */
+  }
+  
+  .info {
+    color: #00fff2; /* Neon blue for info messages */
+  }
+  
+  .inputContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+  
+  .inputField {
+    width: 60px; /* Adjust width for individual input boxes */
+    text-align: center;
+  }
+
+  /* Add these styles to extractPortal.module.css */
+
+.inputField.hintStart {
+    color: #ff8c42; /* Neon orange for the start number */
+    border-color: #ff8c42;
+    box-shadow: 0 0 10px #ff8c42, 0 0 20px #ff8c42, 0 0 40px #ff8c42;
+  }
+  
+  .inputField.hintEnd {
+    color: #c724b1; /* Neon purple for the end number */
+    border-color: #c724b1;
+    box-shadow: 0 0 10px #c724b1, 0 0 20px #c724b1, 0 0 40px #c724b1;
+  }
+
+  .refreshButton {
+    padding: 0.5rem 1rem;
+    border: 1px solid #00fff2;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #33ff33;
+    font-family: 'Inconsolata', monospace;
+    cursor: pointer;
+    position: absolute; /* Position the button absolutely within the container */
+    top: 1rem; /* Adjust the top position */
+    right: 1rem; /* Adjust the right position */
+    z-index: 2; /* Ensure the button is above other elements */
+  }
+  
+  .refreshButton:hover {
+    background: rgba(0, 150, 255, 0.3);
+  }
