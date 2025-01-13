@@ -115,6 +115,22 @@ function ExtractPage() {
     }
   };
 
+  const handleInputChangeWrapper = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    if (index !== 0 && index !== sequence.length - 1) {
+        const value = e.target.value.replace(/\D/g, ''); // Allow only numeric input
+        if (value.length <= 3) {
+            handleInputChange(
+                index, // `index` is explicitly used here
+                value,
+                userInputs,
+                setUserInputs,
+                handleCheckCode,
+                setCorrectNumbers
+            );
+        }
+    }
+  };
+
   return (
     <div className={styles.container}>
       {grid && (
@@ -167,22 +183,7 @@ function ExtractPage() {
                 index === sequence.length - 1 ? sequence[sequence.length - 1] :
                 userInputs[index]
               }
-              onChange={(e) => {
-                const { value } = e.target;
-                if (index !== 0 && index !== sequence.length - 1) {
-                    const numericValue = value.replace(/\D/g, ''); // Allow only numeric input
-                    if (numericValue.length <= 3) {
-                        handleInputChange(
-                            index, // `index` is explicitly used here
-                            numericValue,
-                            userInputs,
-                            setUserInputs,
-                            handleCheckCode,
-                            setCorrectNumbers
-                        );
-                    }
-                }
-              }}
+              onChange={(e) => handleInputChangeWrapper(index, e)}
               onKeyDown={(e) => handleKeyDown(e, index)}
               className={`${styles.inputField} ${
                 index === 0 ? styles.hintStart : index === sequence.length - 1 ? styles.hintEnd : ''
