@@ -23,39 +23,39 @@ async function fetchPuzzleData() {
 }
 
 // Generate grid and answer key based on the current tier
-// Generate grid and answer key based on the current tier
 export async function generatePuzzle(tier = 1) {
     const data = await fetchPuzzleData();
-  
+
     if (data.error) {
-      console.error('Error:', data.error);
-      return { error: data.error };
+        console.error('Error:', data.error);
+        return { error: data.error };
     }
-  
-    const { grid, sequence } = data;
-  
+
+    const { grid, sequences } = data;
+
     if (!Array.isArray(grid) || grid.length !== 12 || grid[0].length !== 12) {
-      const errorMessage = 'Error: grid is not defined or is not a 12x12 grid.';
-      console.error(errorMessage);
-      return { error: errorMessage };
+        const errorMessage = 'Error: grid is not defined or is not a 12x12 grid.';
+        console.error(errorMessage);
+        return { error: errorMessage };
     }
-  
+
     const gridNumbers = grid.flat();
-  
-    // Adjust the sequence length based on the tier
+
+    // Extract the sequence based on the tier
     let adjustedSequence;
     if (tier === 1) {
-      adjustedSequence = sequence.slice(0, 6); // Use first 6 elements for tier 1
+        adjustedSequence = sequences.tier1;
     } else if (tier === 2) {
-      adjustedSequence = sequence.slice(0, 8); // Use first 8 elements for tier 2
+        adjustedSequence = sequences.tier2;
     } else if (tier === 3) {
-      adjustedSequence = sequence; // Use the full sequence for tier 3
+        adjustedSequence = sequences.tier3;
     } else {
-      adjustedSequence = sequence; // Default to full sequence
+        adjustedSequence = sequences.tier1; // Default to tier1 sequence
     }
-  
+
     return { gridNumbers, answerKey: adjustedSequence, tier };
-  }
+}
+
 // Check the code entered by the user
 export function checkCode(numbers, answerKey, currentCorrect) {
     const sequence = answerKey.map(String); // Convert sequence to strings
