@@ -227,3 +227,38 @@
   .refreshButton:hover {
     background: rgba(0, 150, 255, 0.3);
   }
+
+  .proceedButtonsContainer {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+  
+  .proceedButton {
+    padding: 0.5rem 1rem;
+    border: 1px solid #33ff33;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #33ff33;
+    font-family: 'Inconsolata', monospace;
+    cursor: pointer;
+  }
+  
+  .proceedButton:hover {
+    background: rgba(0, 150, 255, 0.3);
+  }
+  
+  .stayButton {
+    padding: 0.5rem 1rem;
+    border: 1px solid #ff3333;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #ff3333;
+    font-family: 'Inconsolata', monospace;
+    cursor: pointer;
+  }
+  
+  .stayButton:hover {
+    background: rgba(255, 0, 0, 0.3);
+  }

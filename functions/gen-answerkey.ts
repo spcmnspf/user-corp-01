@@ -43,8 +43,31 @@ function getAdjacentPositions(pos: Position): Position[] {
     ].filter(p => p.row >= 0 && p.row < 12 && p.col >= 0 && p.col < 12);
 }
 
-function findTenNumberSequence(grid: Grid): string[] {
-    const visited: Set<string> = new Set(); // Use Set<string> instead of Set<number>
+function findSequence(grid: Grid, startPos: Position, length: number, visited: Set<string>): string[] {
+    let currentPos = startPos;
+    const sequence: string[] = [grid[currentPos.row][currentPos.col]];
+    visited.add(sequence[0]);
+
+    while (sequence.length < length) {
+        const adjacentPositions = getAdjacentPositions(currentPos);
+        const availablePositions = adjacentPositions.filter(pos => !visited.has(grid[pos.row][pos.col]));
+
+        if (availablePositions.length === 0) {
+            // If no available adjacent positions, return the incomplete sequence
+            return sequence;
+        }
+
+        const nextPos = availablePositions[Math.floor(Math.random() * availablePositions.length)];
+        sequence.push(grid[nextPos.row][nextPos.col]);
+        visited.add(sequence[sequence.length - 1]);
+        currentPos = nextPos;
+    }
+
+    return sequence;
+}
+
+function findSequences(grid: Grid): { tier1: string[]; tier2: string[]; tier3: string[] } {
+    const visited: Set<string> = new Set();
     const maxAttempts = 100; // Safeguard to prevent infinite loops
     let attempts = 0;
 
@@ -54,34 +77,36 @@ function findTenNumberSequence(grid: Grid): string[] {
             col: Math.floor(Math.random() * 12),
         };
 
-        let currentPos = startPos;
-        const sequence: string[] = [grid[currentPos.row][currentPos.col]];
-        visited.add(sequence[0]);
-
-        while (sequence.length < 10) {
-            const adjacentPositions = getAdjacentPositions(currentPos);
-            const availablePositions = adjacentPositions.filter(pos => !visited.has(grid[pos.row][pos.col]));
-
-            if (availablePositions.length === 0) {
-                // If no available adjacent positions, restart the sequence
-                break;
-            }
-
-            const nextPos = availablePositions[Math.floor(Math.random() * availablePositions.length)];
-            sequence.push(grid[nextPos.row][nextPos.col]);
-            visited.add(sequence[sequence.length - 1]);
-            currentPos = nextPos;
+        // Find tier1 sequence (6 numbers)
+        const tier1 = findSequence(grid, startPos, 6, visited);
+        if (tier1.length < 6) {
+            attempts++;
+            visited.clear();
+            continue;
         }
 
-        if (sequence.length === 10) {
-            return sequence;
+        // Find tier2 sequence (8 numbers) starting from the last number of tier1
+        const tier2StartPos = { row: startPos.row, col: startPos.col }; // Update to the last position of tier1
+        const tier2 = findSequence(grid, tier2StartPos, 8, visited);
+        if (tier2.length < 8) {
+            attempts++;
+            visited.clear();
+            continue;
         }
 
-        attempts++;
-        visited.clear();
+        // Find tier3 sequence (10 numbers) starting from the last number of tier2
+        const tier3StartPos = { row: startPos.row, col: startPos.col }; // Update to the last position of tier2
+        const tier3 = findSequence(grid, tier3StartPos, 10, visited);
+        if (tier3.length < 10) {
+            attempts++;
+            visited.clear();
+            continue;
+        }
+
+        return { tier1, tier2, tier3 };
     }
 
-    throw new Error("Failed to generate a valid sequence within the allowed attempts.");
+    throw new Error("Failed to generate valid sequences within the allowed attempts.");
 }
 
 export default async function handler(req: Request, res: Response) {
@@ -90,18 +115,18 @@ export default async function handler(req: Request, res: Response) {
         const grid = createGrid();
         console.log("Grid generated successfully.");
 
-        console.log("Finding ten-number sequence...");
-        const sequence = findTenNumberSequence(grid);
-        console.log("Sequence found:", sequence);
+        console.log("Finding sequences...");
+        const sequences = findSequences(grid);
+        console.log("Sequences found:", sequences);
 
-        // Return the grid and sequence as a JSON response
+        // Return the grid and sequences as a JSON response
         res.status(200).json({
             success: true,
             grid, // Grid is now a 12x12 array of strings
-            sequence, // Sequence is now an array of strings
+            sequences, // Sequences include tier1, tier2, and tier3
         });
     } catch (error) {
-        console.error("Error generating grid and sequence:", error);
+        console.error("Error generating grid and sequences:", error);
         res.status(500).json({ 
             success: false,
             error: "Internal Server Error",

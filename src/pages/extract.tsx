@@ -1,28 +1,34 @@
 import BaseLayout from '@/layouts/BaseLayout';
-import { ReactElement, useEffect, useState } from 'react'; // Ensure useState is imported
+import { ReactElement, useEffect, useState } from 'react';
 import styles from '../styles/extractPortal.module.css';
 import { generatePuzzle, checkCode, handleInputChange } from '../components/extractPortal';
 
 function ExtractPage() {
   const [grid, setGrid] = useState<string[][] | null>(null);
   const [sequence, setSequence] = useState<string[] | null>(null);
-  const [currentCorrect, setCurrentCorrect] = useState(0); // Tracks correct guesses
+  const [currentCorrect, setCurrentCorrect] = useState(0);
   const [userInputs, setUserInputs] = useState<string[]>([]);
-  const [infoMessage, setInfoMessage] = useState<{ message: string; type: 'error' | 'success' | 'info' }>({ message: '', type: 'info' });
+  const [infoMessage, setInfoMessage] = useState<{ 
+    message: string; 
+    type: 'error' | 'success' | 'info'; 
+    showProceedButtons?: boolean; // Add a flag to control the visibility of proceed buttons
+  }>({ message: '', type: 'info' });
   const [correctNumbers, setCorrectNumbers] = useState<Set<string>>(new Set());
+  const [tier, setTier] = useState(1); // Track the current tier
 
   // Load puzzle data from local storage or generate a new puzzle
-  const initPuzzle = async () => {
+  const initPuzzle = async (tier = 1) => {
     const storedPuzzle = localStorage.getItem('puzzleData');
     if (storedPuzzle) {
-      const { grid: storedGrid, sequence: storedSequence } = JSON.parse(storedPuzzle);
+      const { grid: storedGrid, sequence: storedSequence, tier: storedTier } = JSON.parse(storedPuzzle);
       setGrid(storedGrid);
       setSequence(storedSequence);
       setUserInputs(new Array(storedSequence.length).fill(''));
       setInfoMessage({ message: `There are ${storedSequence.length - 2} missing codes in the sequence. Type in the code to complete the data extraction.`, type: 'info' });
       setCorrectNumbers(new Set());
+      setTier(storedTier);
     } else {
-      const result = await generatePuzzle();
+      const result = await generatePuzzle(tier); // Pass the current tier to generatePuzzle
       if (result.error) {
         console.error(result.error);
         setInfoMessage({ message: result.error, type: 'error' });
@@ -36,38 +42,22 @@ function ExtractPage() {
         setUserInputs(new Array(result.answerKey.length).fill(''));
         setInfoMessage({ message: `There are ${result.answerKey.length - 2} missing codes in the sequence. Type in the code to complete the data extraction.`, type: 'info' });
         setCorrectNumbers(new Set());
-
+        setTier(tier);
+  
         // Save puzzle data to local storage
-        localStorage.setItem('puzzleData', JSON.stringify({ grid, sequence: result.answerKey }));
+        localStorage.setItem('puzzleData', JSON.stringify({ grid, sequence: result.answerKey, tier }));
       }
     }
   };
-
+  // Reinitialize the puzzle when the tier changes
   useEffect(() => {
-    initPuzzle();
-  }, []);
+    initPuzzle(tier);
+  }, [tier]);
 
   // Manual refresh puzzle button handler
   const handleRefreshPuzzle = async () => {
     localStorage.removeItem('puzzleData'); // Clear stored puzzle data
-    const result = await generatePuzzle();
-    if (result.error) {
-      console.error(result.error);
-      setInfoMessage({ message: result.error, type: 'error' });
-    } else if (result.gridNumbers && result.answerKey) {
-      const grid = [];
-      for (let i = 0; i < 12; i++) {
-        grid.push(result.gridNumbers.slice(i * 12, (i + 1) * 12));
-      }
-      setGrid(grid);
-      setSequence(result.answerKey);
-      setUserInputs(new Array(result.answerKey.length).fill(''));
-      setInfoMessage({ message: `There are ${result.answerKey.length - 2} missing codes in the sequence. Type in the code to complete the data extraction.`, type: 'info' });
-      setCorrectNumbers(new Set());
-
-      // Save new puzzle data to local storage
-      localStorage.setItem('puzzleData', JSON.stringify({ grid, sequence: result.answerKey }));
-    }
+    await initPuzzle(tier);
   };
 
   const handleCheckCode = (inputs: string[]) => {
@@ -93,7 +83,18 @@ function ExtractPage() {
         // Check if the entire sequence has been matched (4-sequence check)
         if (result.currentCorrect === sequence.length - 2) {
           setUserInputs(new Array(sequence.length).fill(''));
+
+          // Show success message with a delay before showing the proceed buttons
           setInfoMessage({ message: 'Congratulations! Chain completed!', type: 'success' });
+          setTimeout(() => {
+            if (tier < 3) {
+              setInfoMessage({ 
+                message: 'Congratulations! Chain completed!', 
+                type: 'success', 
+                showProceedButtons: true, // Show proceed buttons after delay
+              });
+            }
+          }, 2000); // 2-second delay
         } else {
           setInfoMessage({ message: `There are ${sequence.length - result.currentCorrect - 2} missing codes in the sequence. Type in the code to complete the data extraction.`, type: 'info' });
         }
@@ -123,6 +124,17 @@ function ExtractPage() {
             );
         }
     }
+  };
+
+  // Handle proceeding to the next tier
+  const handleProceedToNextTier = () => {
+    setTier((prevTier) => prevTier + 1); // Increment the tier
+    setInfoMessage({ message: '', type: 'info', showProceedButtons: false }); // Reset the info message
+  };
+
+  // Handle staying on the current tier
+  const handleStayOnCurrentTier = () => {
+    setInfoMessage({ message: '', type: 'info', showProceedButtons: false }); // Reset the info message
   };
 
   return (
@@ -162,6 +174,16 @@ function ExtractPage() {
           }`}
         >
           {infoMessage.message}
+          {infoMessage.showProceedButtons && (
+            <div className={styles.proceedButtonsContainer}>
+              <button onClick={handleProceedToNextTier} className={styles.proceedButton}>
+                Proceed to Next Tier
+              </button>
+              <button onClick={handleStayOnCurrentTier} className={styles.stayButton}>
+                Stay on Current Tier
+              </button>
+            </div>
+          )}
         </div>
       )}
 
