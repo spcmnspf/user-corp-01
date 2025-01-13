@@ -165,11 +165,10 @@
     text-align: center; /* Center the text inside the container */
     font-family: 'Inconsolata', monospace;
     font-size: 1rem;
-    /* padding: 0.5rem; */
+    padding: 1rem; /* Add padding to give space for buttons */
     border-radius: 4px;
     background: rgba(0, 0, 0, 0.7);
-    /* border: 1px solid #00fff2;
-    box-shadow: 0 0 10px #00fff2; */
+    position: relative; /* Make the container a reference for absolute positioning */
   }
   
   .error {
@@ -234,10 +233,10 @@
     justify-content: center;
     align-items: center; /* Center vertically */
     margin-top: 1rem;
-    position: absolute; /* Position absolutely within the container */
+    /*position: absolute;  Position absolutely within the information container */
     top: 50%; /* Center vertically */
     left: 50%; /* Center horizontally */
-    transform: translate(-50%, -50%); /* Adjust for exact centering */
+    /*transform: translate(-50%, -50%);  Adjust for exact centering */
     z-index: 2; /* Ensure buttons are above other elements */
   }
   
