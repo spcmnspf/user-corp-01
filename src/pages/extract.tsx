@@ -169,19 +169,20 @@ function ExtractPage() {
               }
               onChange={(e) => {
                 if (index !== 0 && index !== sequence.length - 1) {
-                  const value = e.target.value.replace(/\D/g, ''); // Allow only numeric input
-                  if (value.length <= 3) {
-                    handleInputChange(
-                      index,
-                      value,
-                      userInputs,
-                      setUserInputs,
-                      handleCheckCode,
-                      setCorrectNumbers
-                    );
-                  }
+                    const value = e.target.value.replace(/\D/g, ''); // Allow only numeric input
+                    if (value.length <= 3) {
+                        // `index` is intentionally passed to `handleInputChange`
+                        handleInputChange(
+                            index,
+                            value,
+                            userInputs,
+                            setUserInputs,
+                            handleCheckCode,
+                            setCorrectNumbers
+                        );
+                    }
                 }
-              }}
+            }}
               onKeyDown={(e) => handleKeyDown(e, index)}
               className={`${styles.inputField} ${
                 index === 0 ? styles.hintStart : index === sequence.length - 1 ? styles.hintEnd : ''
