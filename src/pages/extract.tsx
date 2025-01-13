@@ -30,6 +30,7 @@ function ExtractPage() {
       setUserInputs(new Array(storedSequences[`tier${tier}`].length).fill(''));
       setInfoMessage({ message: `There are ${storedSequences[`tier${tier}`].length - 2} missing codes in the sequence. Type in the code to complete the data extraction.`, type: 'info' });
       setCorrectNumbers(new Set());
+      setCurrentCorrect(0); // Reset currentCorrect
       setTier(storedTier);
     } else {
       console.log('No stored puzzle data found. Generating new puzzle.'); // Debugging log
@@ -49,6 +50,7 @@ function ExtractPage() {
         setUserInputs(new Array(result.answerKey.length).fill(''));
         setInfoMessage({ message: `There are ${result.answerKey.length - 2} missing codes in the sequence. Type in the code to complete the data extraction.`, type: 'info' });
         setCorrectNumbers(new Set());
+        setCurrentCorrect(0); // Reset currentCorrect
         setTier(tier);
 
         // Save puzzle data to local storage
@@ -66,6 +68,7 @@ function ExtractPage() {
       setUserInputs(new Array(sequences[`tier${tier}`].length).fill(''));
       setInfoMessage({ message: `There are ${sequences[`tier${tier}`].length - 2} missing codes in the sequence. Type in the code to complete the data extraction.`, type: 'info' });
       setCorrectNumbers(new Set());
+      setCurrentCorrect(0); // Reset currentCorrect
     }
   }, [tier, sequences]);
 
