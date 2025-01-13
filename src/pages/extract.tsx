@@ -168,13 +168,13 @@ function ExtractPage() {
                 userInputs[index]
               }
               onChange={(e) => {
+                const { value } = e.target;
                 if (index !== 0 && index !== sequence.length - 1) {
-                    const value = e.target.value.replace(/\D/g, ''); // Allow only numeric input
-                    if (value.length <= 3) {
-                        // `index` is intentionally passed to `handleInputChange`
+                    const numericValue = value.replace(/\D/g, ''); // Allow only numeric input
+                    if (numericValue.length <= 3) {
                         handleInputChange(
-                            index,
-                            value,
+                            index, // `index` is explicitly used here
+                            numericValue,
                             userInputs,
                             setUserInputs,
                             handleCheckCode,
@@ -182,7 +182,7 @@ function ExtractPage() {
                         );
                     }
                 }
-            }}
+              }}
               onKeyDown={(e) => handleKeyDown(e, index)}
               className={`${styles.inputField} ${
                 index === 0 ? styles.hintStart : index === sequence.length - 1 ? styles.hintEnd : ''
