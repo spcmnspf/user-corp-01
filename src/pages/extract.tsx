@@ -18,8 +18,10 @@ function ExtractPage() {
 
   // Load puzzle data from local storage or generate a new puzzle
   const initPuzzle = async (tier = 1) => {
+    console.log(`Initializing puzzle for tier ${tier}`); // Debugging log
     const storedPuzzle = localStorage.getItem('puzzleData');
     if (storedPuzzle) {
+      console.log('Using stored puzzle data:', storedPuzzle); // Debugging log
       const { grid: storedGrid, sequence: storedSequence, tier: storedTier } = JSON.parse(storedPuzzle);
       setGrid(storedGrid);
       setSequence(storedSequence);
@@ -28,11 +30,13 @@ function ExtractPage() {
       setCorrectNumbers(new Set());
       setTier(storedTier);
     } else {
+      console.log('No stored puzzle data found. Generating new puzzle.'); // Debugging log
       const result = await generatePuzzle(tier);
       if (result.error) {
-        console.error(result.error);
+        console.error('Error generating puzzle:', result.error); // Debugging log
         setInfoMessage({ message: result.error, type: 'error' });
       } else if (result.gridNumbers && result.answerKey) {
+        console.log('Generated puzzle data:', result); // Debugging log
         const grid = [];
         for (let i = 0; i < 12; i++) {
           grid.push(result.gridNumbers.slice(i * 12, (i + 1) * 12));
@@ -46,17 +50,20 @@ function ExtractPage() {
 
         // Save puzzle data to local storage
         localStorage.setItem('puzzleData', JSON.stringify({ grid, sequence: result.answerKey, tier }));
+        console.log('Saved puzzle data to localStorage'); // Debugging log
       }
     }
   };
 
   // Reinitialize the puzzle when the tier changes
   useEffect(() => {
+    console.log('Tier changed to:', tier); // Debugging log
     initPuzzle(tier);
   }, [tier]);
 
   // Manual refresh puzzle button handler
   const handleRefreshPuzzle = async () => {
+    console.log('Refreshing puzzle'); // Debugging log
     localStorage.removeItem('puzzleData'); // Clear stored puzzle data
     await initPuzzle(tier);
   };
@@ -65,12 +72,12 @@ function ExtractPage() {
     if (sequence) {
       const numbers = inputs.map((input) => input.trim());
 
-      console.log('User Input:', numbers);
-      console.log('Sequence:', sequence);
-      console.log('Current Correct:', currentCorrect);
+      console.log('User Input:', numbers); // Debugging log
+      console.log('Sequence:', sequence); // Debugging log
+      console.log('Current Correct:', currentCorrect); // Debugging log
 
       const result = checkCode(numbers, sequence, currentCorrect);
-      console.log('Validation Result:', result);
+      console.log('Validation Result:', result); // Debugging log
 
       if (result.valid) {
         // Update correct numbers in the grid
@@ -130,13 +137,15 @@ function ExtractPage() {
   // Handle proceeding to the next tier
   const handleProceedToNextTier = () => {
     const nextTier = tier + 1;
+    console.log(`Proceeding to tier ${nextTier}`); // Debugging log
     setTier(nextTier); // Increment the tier
     setInfoMessage({ message: '', type: 'info', showProceedButtons: false }); // Reset the info message
-    initPuzzle(nextTier); // Reinitialize the puzzle for the next tier without clearing stored data
+    initPuzzle(nextTier); // Reinitialize the puzzle for the next tier
   };
 
   // Handle staying on the current tier
   const handleStayOnCurrentTier = () => {
+    console.log('Staying on current tier:', tier); // Debugging log
     setInfoMessage({ message: '', type: 'info', showProceedButtons: false }); // Reset the info message
   };
 
