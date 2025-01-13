@@ -108,9 +108,9 @@ function ExtractPage() {
           setTimeout(() => {
             if (tier < 3) {
               setInfoMessage({ 
-                message: 'Congratulations! Chain completed!', 
+                message: '', // Clear the message
                 type: 'success', 
-                showProceedButtons: true,
+                showProceedButtons: true, // Show proceed buttons after delay
               });
             }
           }, 2000); // 2-second delay
@@ -196,16 +196,17 @@ function ExtractPage() {
           }`}
         >
           {infoMessage.message}
-          {infoMessage.showProceedButtons && (
-            <div className={styles.proceedButtonsContainer}>
-              <button onClick={handleProceedToNextTier} className={styles.proceedButton}>
-                Proceed to Next Tier
-              </button>
-              <button onClick={handleStayOnCurrentTier} className={styles.stayButton}>
-                Stay on Current Tier
-              </button>
-            </div>
-          )}
+        </div>
+      )}
+
+      {infoMessage.showProceedButtons && (
+        <div className={styles.proceedButtonsContainer}>
+          <button onClick={handleProceedToNextTier} className={styles.proceedButton}>
+            Proceed to Next Tier
+          </button>
+          <button onClick={handleStayOnCurrentTier} className={styles.stayButton}>
+            Stay on Current Tier
+          </button>
         </div>
       )}
 

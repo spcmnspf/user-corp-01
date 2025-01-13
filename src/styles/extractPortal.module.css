@@ -232,7 +232,13 @@
     display: flex;
     gap: 1rem;
     justify-content: center;
+    align-items: center; /* Center vertically */
     margin-top: 1rem;
+    position: absolute; /* Position absolutely within the container */
+    top: 50%; /* Center vertically */
+    left: 50%; /* Center horizontally */
+    transform: translate(-50%, -50%); /* Adjust for exact centering */
+    z-index: 2; /* Ensure buttons are above other elements */
   }
   
   .proceedButton {
