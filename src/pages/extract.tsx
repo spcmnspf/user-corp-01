@@ -135,12 +135,34 @@ function ExtractPage() {
   };
 
   // Handle proceeding to the next tier
-  const handleProceedToNextTier = () => {
+  const handleProceedToNextTier = async () => {
     const nextTier = tier + 1;
     console.log(`Proceeding to tier ${nextTier}`); // Debugging log
-    setTier(nextTier); // Increment the tier
-    setInfoMessage({ message: '', type: 'info', showProceedButtons: false }); // Reset the info message
-    initPuzzle(nextTier); // Reinitialize the puzzle for the next tier
+
+    // Generate a new puzzle for the next tier
+    const result = await generatePuzzle(nextTier);
+    if (result.error) {
+      console.error('Error generating puzzle for next tier:', result.error); // Debugging log
+      setInfoMessage({ message: result.error, type: 'error' });
+    } else if (result.gridNumbers && result.answerKey) {
+      console.log('Generated puzzle data for next tier:', result); // Debugging log
+      const grid = [];
+      for (let i = 0; i < 12; i++) {
+        grid.push(result.gridNumbers.slice(i * 12, (i + 1) * 12));
+      }
+
+      // Update state with the new puzzle data
+      setGrid(grid);
+      setSequence(result.answerKey);
+      setUserInputs(new Array(result.answerKey.length).fill(''));
+      setInfoMessage({ message: `There are ${result.answerKey.length - 2} missing codes in the sequence. Type in the code to complete the data extraction.`, type: 'info' });
+      setCorrectNumbers(new Set());
+      setTier(nextTier);
+
+      // Save the new puzzle data to local storage
+      localStorage.setItem('puzzleData', JSON.stringify({ grid, sequence: result.answerKey, tier: nextTier }));
+      console.log('Saved new puzzle data to localStorage for tier:', nextTier); // Debugging log
+    }
   };
 
   // Handle staying on the current tier
