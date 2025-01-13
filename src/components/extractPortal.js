@@ -1,6 +1,7 @@
 // extractPortal.js
 
 // Fetch grid and answer key from the provided URL
+// Fetch grid and answer key from the provided URL
 async function fetchPuzzleData() {
     try {
         const response = await fetch('https://sbnpjmkqdoefeelkfrhy.functions.us-west-2.nhost.run/v1/gen-answerkey');
@@ -53,7 +54,7 @@ export async function generatePuzzle(tier = 1) {
         adjustedSequence = sequences.tier1; // Default to tier1 sequence
     }
 
-    return { gridNumbers, answerKey: adjustedSequence, tier };
+    return { gridNumbers, answerKey: adjustedSequence, tier, sequences };
 }
 
 // Check the code entered by the user

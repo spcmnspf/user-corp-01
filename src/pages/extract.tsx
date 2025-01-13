@@ -15,6 +15,7 @@ function ExtractPage() {
   }>({ message: '', type: 'info' });
   const [correctNumbers, setCorrectNumbers] = useState<Set<string>>(new Set());
   const [tier, setTier] = useState(1);
+  const [sequences, setSequences] = useState<{ tier1: string[]; tier2: string[]; tier3: string[] } | null>(null);
 
   // Load puzzle data from local storage or generate a new puzzle
   const initPuzzle = async (tier = 1) => {
@@ -22,11 +23,12 @@ function ExtractPage() {
     const storedPuzzle = localStorage.getItem('puzzleData');
     if (storedPuzzle) {
       console.log('Using stored puzzle data:', storedPuzzle); // Debugging log
-      const { grid: storedGrid, sequence: storedSequence, tier: storedTier } = JSON.parse(storedPuzzle);
+      const { grid: storedGrid, sequences: storedSequences, tier: storedTier } = JSON.parse(storedPuzzle);
       setGrid(storedGrid);
-      setSequence(storedSequence);
-      setUserInputs(new Array(storedSequence.length).fill(''));
-      setInfoMessage({ message: `There are ${storedSequence.length - 2} missing codes in the sequence. Type in the code to complete the data extraction.`, type: 'info' });
+      setSequences(storedSequences);
+      setSequence(storedSequences[`tier${tier}`]);
+      setUserInputs(new Array(storedSequences[`tier${tier}`].length).fill(''));
+      setInfoMessage({ message: `There are ${storedSequences[`tier${tier}`].length - 2} missing codes in the sequence. Type in the code to complete the data extraction.`, type: 'info' });
       setCorrectNumbers(new Set());
       setTier(storedTier);
     } else {
@@ -42,6 +44,7 @@ function ExtractPage() {
           grid.push(result.gridNumbers.slice(i * 12, (i + 1) * 12));
         }
         setGrid(grid);
+        setSequences(result.sequences);
         setSequence(result.answerKey);
         setUserInputs(new Array(result.answerKey.length).fill(''));
         setInfoMessage({ message: `There are ${result.answerKey.length - 2} missing codes in the sequence. Type in the code to complete the data extraction.`, type: 'info' });
@@ -49,7 +52,7 @@ function ExtractPage() {
         setTier(tier);
 
         // Save puzzle data to local storage
-        localStorage.setItem('puzzleData', JSON.stringify({ grid, sequence: result.answerKey, tier }));
+        localStorage.setItem('puzzleData', JSON.stringify({ grid, sequences: result.sequences, tier }));
         console.log('Saved puzzle data to localStorage'); // Debugging log
       }
     }
@@ -58,8 +61,13 @@ function ExtractPage() {
   // Reinitialize the puzzle when the tier changes
   useEffect(() => {
     console.log('Tier changed to:', tier); // Debugging log
-    initPuzzle(tier);
-  }, [tier]);
+    if (sequences) {
+      setSequence(sequences[`tier${tier}`]);
+      setUserInputs(new Array(sequences[`tier${tier}`].length).fill(''));
+      setInfoMessage({ message: `There are ${sequences[`tier${tier}`].length - 2} missing codes in the sequence. Type in the code to complete the data extraction.`, type: 'info' });
+      setCorrectNumbers(new Set());
+    }
+  }, [tier, sequences]);
 
   // Manual refresh puzzle button handler
   const handleRefreshPuzzle = async () => {
@@ -135,34 +143,11 @@ function ExtractPage() {
   };
 
   // Handle proceeding to the next tier
-  const handleProceedToNextTier = async () => {
+  const handleProceedToNextTier = () => {
     const nextTier = tier + 1;
     console.log(`Proceeding to tier ${nextTier}`); // Debugging log
-
-    // Generate a new puzzle for the next tier
-    const result = await generatePuzzle(nextTier);
-    if (result.error) {
-      console.error('Error generating puzzle for next tier:', result.error); // Debugging log
-      setInfoMessage({ message: result.error, type: 'error' });
-    } else if (result.gridNumbers && result.answerKey) {
-      console.log('Generated puzzle data for next tier:', result); // Debugging log
-      const grid = [];
-      for (let i = 0; i < 12; i++) {
-        grid.push(result.gridNumbers.slice(i * 12, (i + 1) * 12));
-      }
-
-      // Update state with the new puzzle data
-      setGrid(grid);
-      setSequence(result.answerKey);
-      setUserInputs(new Array(result.answerKey.length).fill(''));
-      setInfoMessage({ message: `There are ${result.answerKey.length - 2} missing codes in the sequence. Type in the code to complete the data extraction.`, type: 'info' });
-      setCorrectNumbers(new Set());
-      setTier(nextTier);
-
-      // Save the new puzzle data to local storage
-      localStorage.setItem('puzzleData', JSON.stringify({ grid, sequence: result.answerKey, tier: nextTier }));
-      console.log('Saved new puzzle data to localStorage for tier:', nextTier); // Debugging log
-    }
+    setTier(nextTier); // Increment the tier
+    setInfoMessage({ message: '', type: 'info', showProceedButtons: false }); // Reset the info message
   };
 
   // Handle staying on the current tier
