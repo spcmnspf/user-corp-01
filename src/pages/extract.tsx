@@ -11,10 +11,10 @@ function ExtractPage() {
   const [infoMessage, setInfoMessage] = useState<{ 
     message: string; 
     type: 'error' | 'success' | 'info'; 
-    showProceedButtons?: boolean; // Add a flag to control the visibility of proceed buttons
+    showProceedButtons?: boolean;
   }>({ message: '', type: 'info' });
   const [correctNumbers, setCorrectNumbers] = useState<Set<string>>(new Set());
-  const [tier, setTier] = useState(1); // Track the current tier
+  const [tier, setTier] = useState(1);
 
   // Load puzzle data from local storage or generate a new puzzle
   const initPuzzle = async (tier = 1) => {
@@ -28,7 +28,7 @@ function ExtractPage() {
       setCorrectNumbers(new Set());
       setTier(storedTier);
     } else {
-      const result = await generatePuzzle(tier); // Pass the current tier to generatePuzzle
+      const result = await generatePuzzle(tier);
       if (result.error) {
         console.error(result.error);
         setInfoMessage({ message: result.error, type: 'error' });
@@ -43,12 +43,13 @@ function ExtractPage() {
         setInfoMessage({ message: `There are ${result.answerKey.length - 2} missing codes in the sequence. Type in the code to complete the data extraction.`, type: 'info' });
         setCorrectNumbers(new Set());
         setTier(tier);
-  
+
         // Save puzzle data to local storage
         localStorage.setItem('puzzleData', JSON.stringify({ grid, sequence: result.answerKey, tier }));
       }
     }
   };
+
   // Reinitialize the puzzle when the tier changes
   useEffect(() => {
     initPuzzle(tier);
@@ -91,7 +92,7 @@ function ExtractPage() {
               setInfoMessage({ 
                 message: 'Congratulations! Chain completed!', 
                 type: 'success', 
-                showProceedButtons: true, // Show proceed buttons after delay
+                showProceedButtons: true,
               });
             }
           }, 2000); // 2-second delay
@@ -115,7 +116,7 @@ function ExtractPage() {
         const value = e.target.value.replace(/\D/g, ''); // Allow only numeric input
         if (value.length <= 3) {
             handleInputChange(
-                index, // `index` is explicitly used here
+                index,
                 value,
                 userInputs,
                 setUserInputs,
@@ -128,8 +129,10 @@ function ExtractPage() {
 
   // Handle proceeding to the next tier
   const handleProceedToNextTier = () => {
-    setTier((prevTier) => prevTier + 1); // Increment the tier
+    const nextTier = tier + 1;
+    setTier(nextTier); // Increment the tier
     setInfoMessage({ message: '', type: 'info', showProceedButtons: false }); // Reset the info message
+    initPuzzle(nextTier); // Reinitialize the puzzle for the next tier without clearing stored data
   };
 
   // Handle staying on the current tier
