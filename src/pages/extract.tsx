@@ -109,12 +109,6 @@ function ExtractPage() {
     return null;
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
-    if (e.key === 'Enter') {
-      handleCheckCode(userInputs.slice(1, -1)); // Only pass the middle elements
-    }
-  };
-
   const handleInputChangeWrapper = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     if (index !== 0 && index !== sequence.length - 1) {
         const value = e.target.value.replace(/\D/g, ''); // Allow only numeric input
@@ -184,7 +178,6 @@ function ExtractPage() {
                 userInputs[index]
               }
               onChange={(e) => handleInputChangeWrapper(index, e)}
-              onKeyDown={(e) => handleKeyDown(e, index)}
               className={`${styles.inputField} ${
                 index === 0 ? styles.hintStart : index === sequence.length - 1 ? styles.hintEnd : ''
               }`}
