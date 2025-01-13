@@ -43,7 +43,7 @@ function getAdjacentPositions(pos: Position): Position[] {
     ].filter(p => p.row >= 0 && p.row < 12 && p.col >= 0 && p.col < 12);
 }
 
-function findSixNumberSequence(grid: Grid): string[] {
+function findTenNumberSequence(grid: Grid): string[] {
     const visited: Set<string> = new Set(); // Use Set<string> instead of Set<number>
     const maxAttempts = 100; // Safeguard to prevent infinite loops
     let attempts = 0;
@@ -58,7 +58,7 @@ function findSixNumberSequence(grid: Grid): string[] {
         const sequence: string[] = [grid[currentPos.row][currentPos.col]];
         visited.add(sequence[0]);
 
-        while (sequence.length < 6) {
+        while (sequence.length < 10) {
             const adjacentPositions = getAdjacentPositions(currentPos);
             const availablePositions = adjacentPositions.filter(pos => !visited.has(grid[pos.row][pos.col]));
 
@@ -73,7 +73,7 @@ function findSixNumberSequence(grid: Grid): string[] {
             currentPos = nextPos;
         }
 
-        if (sequence.length === 6) {
+        if (sequence.length === 10) {
             return sequence;
         }
 
@@ -90,8 +90,8 @@ export default async function handler(req: Request, res: Response) {
         const grid = createGrid();
         console.log("Grid generated successfully.");
 
-        console.log("Finding six-number sequence...");
-        const sequence = findSixNumberSequence(grid);
+        console.log("Finding ten-number sequence...");
+        const sequence = findTenNumberSequence(grid);
         console.log("Sequence found:", sequence);
 
         // Return the grid and sequence as a JSON response
