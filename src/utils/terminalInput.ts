@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useSignOut } from '@nhost/react';
 import { data } from '../data/info';
 import { nhost } from '../utils/nhost';
+import { useRouter } from 'next/router'; // Import the useRouter hook
 
 // Define types
 type CommandAction = (args?: string[], print?: (text: string, type?: string) => void) => void;
@@ -33,100 +34,104 @@ export const useTerminateSession = () => { // Export the function
 };
 
 // Define the commands array
-export const getCommands = (terminateSession: (print: (text: string, type?: string) => void) => Promise<void>): Command[] => [
-    {
-        command: 'help',
-        desc: 'Show this help message',
-        hidden: false,
-        action: (args, print) => {
-            const helpText = getCommands(terminateSession)
-                .filter(cmd => !cmd.hidden)
-                .map(cmd => `  ${cmd.command.padEnd(10)} - ${cmd.desc}`)
-                .join('\n');
-            print(`Available commands:\n${helpText}`);
+export const getCommands = (terminateSession: (print: (text: string, type?: string) => void) => Promise<void>): Command[] => {
+    const router = useRouter(); // Initialize the router
+
+    return [
+        {
+            command: 'help',
+            desc: 'Show this help message',
+            hidden: false,
+            action: (args, print) => {
+                const helpText = getCommands(terminateSession)
+                    .filter(cmd => !cmd.hidden)
+                    .map(cmd => `  ${cmd.command.padEnd(10)} - ${cmd.desc}`)
+                    .join('\n');
+                print(`Available commands:\n${helpText}`);
+            },
         },
-    },
-    {
-        command: 'clear',
-        desc: 'Clear terminal',
-        hidden: false,
-        action: (args, print) => {
-            print('Terminal cleared.', 'clear');
+        {
+            command: 'clear',
+            desc: 'Clear terminal',
+            hidden: false,
+            action: (args, print) => {
+                print('Terminal cleared.', 'clear');
+            },
         },
-    },
-    {
-        command: 'status',
-        desc: 'Show system status',
-        hidden: false,
-        action: async (args, print) => {
-            const status = await getStatus(getCommands(terminateSession));
-            print(status);
+        {
+            command: 'status',
+            desc: 'Show system status',
+            hidden: false,
+            action: async (args, print) => {
+                const status = await getStatus(getCommands(terminateSession));
+                print(status);
+            },
         },
-    },
-    {
-        command: 'whoami',
-        desc: 'Display current user',
-        hidden: false,
-        action: async (args, print) => {
-            const userInfo = await getUserInfo();
-            print(userInfo);
+        {
+            command: 'whoami',
+            desc: 'Display current user',
+            hidden: false,
+            action: async (args, print) => {
+                const userInfo = await getUserInfo();
+                print(userInfo);
+            },
         },
-    },
-    {
-        command: 'time',
-        desc: 'Show current time',
-        hidden: false,
-        action: (args, print) => {
-            print(getCurrentTime());
+        {
+            command: 'time',
+            desc: 'Show current time',
+            hidden: false,
+            action: (args, print) => {
+                print(getCurrentTime());
+            },
         },
-    },
-    {
-        command: 'version',
-        desc: 'Show system version',
-        hidden: false,
-        action: (args, print) => {
-            print(getVersionInfo());
+        {
+            command: 'version',
+            desc: 'Show system version',
+            hidden: false,
+            action: (args, print) => {
+                print(getVersionInfo());
+            },
         },
-    },
-    {
-        command: 'login',
-        desc: 'Login to system',
-        hidden: false,
-        action: (args, print) => {
-            print('Authenticating user...');
-            setTimeout(() => {
-                // Use a state or context to open the login modal
-                (window as any).openLoginModal(); // Replace with a React-friendly approach
-            }, 1000);
+        {
+            command: 'login',
+            desc: 'Login to system',
+            hidden: false,
+            action: (args, print) => {
+                print('Authenticating user...');
+                setTimeout(() => {
+                    // Use a state or context to open the login modal
+                    (window as any).openLoginModal(); // Replace with a React-friendly approach
+                }, 1000);
+            },
         },
-    },
-    {
-        command: 'terminate',
-        desc: 'Terminate session',
-        hidden: false,
-        action: async (args, print) => {
-            await terminateSession(print); // Use the passed terminateSession function
+        {
+            command: 'terminate',
+            desc: 'Terminate session',
+            hidden: false,
+            action: async (args, print) => {
+                await terminateSession(print); // Use the passed terminateSession function
+            },
         },
-    },
-    {
-        command: 'hack',
-        desc: 'Access corporate systems',
-        hidden: true,
-        action: (args, print) => {
-            hackSystem();
-            print('Hacking system...');
+        {
+            command: 'hack',
+            desc: 'Access corporate systems',
+            hidden: true,
+            action: (args, print) => {
+                print('Redirecting to hack portal...');
+                router.push('/hack'); // Navigate to the hack page
+            },
         },
-    },
-    {
-        command: 'extract',
-        desc: 'Extract encrypted data',
-        hidden: true,
-        action: (args, print) => {
-            extractData();
-            print('Extracting data...');
+        {
+            command: 'extract',
+            desc: 'Extract encrypted data',
+            hidden: true,
+            action: (args, print) => {
+                print('Redirecting to extract portal...');
+                router.push('/extract'); // Navigate to the extract page
+            },
         },
-    },
-];
+    ];
+};
 
 // Define executeCommand as a standalone function
 export function executeCommand(
