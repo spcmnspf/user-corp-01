@@ -1,13 +1,30 @@
-import { useEffect, useRef, useState } from 'react'; // Add useState
+import { useEffect, useRef, useState } from 'react';
 import { data } from '@/data/info';
 import BaseLayout from '@/layouts/BaseLayout';
-import Terminal from '@/utils/terminalTS'; // Updated import
+import Terminal from '@/utils/terminalTS';
 import Modal from 'react-modal';
 import { ReactElement } from 'react';
+import { useRouter } from 'next/router'; // Import the useRouter hook
+import { executeCommand, getCommands } from '@/utils/terminalInput'; // Import executeCommand and getCommands
 
 function IndexPage() {
   const terminalContainerRef = useRef<HTMLDivElement | null>(null); // Ref for the terminal container
   const [isTerminalMounted, setIsTerminalMounted] = useState(false); // State to track terminal mount
+  const router = useRouter(); // Initialize the router
+
+  // Handle command execution and navigation
+  const handleTerminalCommand = (input: string) => {
+    if (terminalContainerRef.current) {
+      const commands = getCommands(() => Promise.resolve()); // Pass a dummy terminateSession function
+      const result = executeCommand(input, (text: string) => console.log(text), commands); // Execute the command
+  
+      // Handle navigation based on the result
+      if (result && result.startsWith('navigate:')) {
+        const route = result.split(':')[1]; // Extract the route (e.g., '/about')
+        router.push(route); // Navigate to the specified route
+      }
+    }
+  };
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -51,10 +68,8 @@ function IndexPage() {
     <>
       {/* Render the Terminal component if the container is mounted */}
       {isTerminalMounted && terminalContainerRef.current && (
-        <Terminal container={terminalContainerRef.current} />
+        <Terminal container={terminalContainerRef.current} onCommand={handleTerminalCommand} />
       )}
-
-
     </>
   );
 }

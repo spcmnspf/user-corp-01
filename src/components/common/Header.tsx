@@ -10,11 +10,12 @@ import { generateNodeName } from '@/utils/generateNodeName';
 declare global {
   interface Window {
     openLoginModal: () => void;
+    navigateToPage: (path: string) => void; // Add this line
   }
 }
 
 export function Header() {
-  const { asPath } = useRouter();
+  const { asPath, push } = useRouter(); // Use `push` from useRouter
   const { isLoading, isAuthenticated } = useAuthenticationStatus();
   const { signOut } = useSignOut();
   const [nodeName, setNodeName] = useState('');
@@ -33,7 +34,12 @@ export function Header() {
   useEffect(() => {
     // Expose the function to open the modal globally
     window.openLoginModal = () => setIsModalOpen(true);
-  }, []);
+
+    // Expose the function to navigate to a specific page globally
+    window.navigateToPage = (path: string) => {
+      push(path); // Use the router to navigate to the specified path
+    };
+  }, [push]); // Add `push` as a dependency
 
   const handleLogin = async () => {
     try {

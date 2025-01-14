@@ -2,10 +2,9 @@ import { useState } from 'react';
 import { useSignOut } from '@nhost/react';
 import { data } from '../data/info';
 import { nhost } from '../utils/nhost';
-import { useRouter } from 'next/router'; // Import the useRouter hook
 
 // Define types
-type CommandAction = (args?: string[], print?: (text: string, type?: string) => void) => void;
+type CommandAction = (args?: string[], print?: (text: string, type?: string) => void) => string | void;
 
 export interface Command {
     command: string;
@@ -15,7 +14,7 @@ export interface Command {
 }
 
 // Custom hook for terminateSession
-export const useTerminateSession = () => { // Export the function
+export const useTerminateSession = () => {
     const { signOut } = useSignOut();
 
     const terminateSession = async (print: (text: string, type?: string) => void) => {
@@ -35,8 +34,6 @@ export const useTerminateSession = () => { // Export the function
 
 // Define the commands array
 export const getCommands = (terminateSession: (print: (text: string, type?: string) => void) => Promise<void>): Command[] => {
-    const router = useRouter(); // Initialize the router
-
     return [
         {
             command: 'help',
@@ -117,20 +114,28 @@ export const getCommands = (terminateSession: (print: (text: string, type?: stri
             desc: 'Access corporate systems',
             hidden: true,
             action: (args, print) => {
-                print('Redirecting to hack portal...');
-                router.push('/hack'); // Navigate to the hack page
+              print('Redirecting to hack portal...');
+              if (typeof window !== 'undefined' && window.navigateToPage) {
+                setTimeout(() => {
+                  window.navigateToPage('/hack'); // Call the global navigation function after a delay
+                }, 1000); // 1-second delay
+              }
             },
-        },
-        {
+          },
+          {
             command: 'extract',
             desc: 'Extract encrypted data',
             hidden: true,
             action: (args, print) => {
-                print('Redirecting to extract portal...');
-                router.push('/extract'); // Navigate to the extract page
+              print('Redirecting to extract portal...');
+              if (typeof window !== 'undefined' && window.navigateToPage) {
+                setTimeout(() => {
+                  window.navigateToPage('/extract'); // Call the global navigation function after a delay
+                }, 1000); // 1-second delay
+              }
             },
-        },
-    ];
+          },        
+        ];
 };
 
 // Define executeCommand as a standalone function
@@ -138,11 +143,11 @@ export function executeCommand(
     input: string,
     print: (text: string, type?: string) => void,
     commands: Command[]
-): void {
+): string | void {
     const [cmd, ...args] = input.split(' ');
     const command = commands.find(c => c.command === cmd);
     if (command) {
-        command.action(args, print);
+        return command.action(args, print); // Return the result of the command action
     } else {
         print(`Command "${input}" not found.`);
     }
@@ -194,7 +199,6 @@ function extractData() {
 // Define the useTerminal hook
 const useTerminal = () => {
     const [output, setOutput] = useState<string[]>([]);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const terminateSession = useTerminateSession(); // Suppress the warning
 
     const print = (text: string, type?: string) => {
@@ -206,14 +210,13 @@ const useTerminal = () => {
     };
 
     const handleCommand = (input: string) => {
-        const commands = getCommands(terminateSession); // Pass terminateSession to getCommands
-        executeCommand(input, print, commands);
+        const commands = getCommands(terminateSession);
+        const result = executeCommand(input, print, commands); // Capture the result of executeCommand
+        return result; // Return the result (e.g., 'navigate:/about')
     };
 
     return { output, handleCommand };
 };
 
-// terminalInput.ts
-// export { getCommands};
 // Export everything
 export { useTerminal };
