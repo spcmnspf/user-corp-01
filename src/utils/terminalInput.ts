@@ -188,13 +188,13 @@ function getVersionInfo() {
     return `SassyOS ${data.version}\n\n  S)ecure\n  A)uthentication\n  S)ystem\n  S)ynced\n  Y)esterday\n\nBuild: ${data.build}`;
 }
 
-function hackSystem() {
-    console.log('Hacking system...');
-}
+// function hackSystem() {
+//     console.log('Hacking system...');
+// }
 
-function extractData() {
-    console.log('Extracting data...');
-}
+// function extractData() {
+//     console.log('Extracting data...');
+// }
 
 // Define the useTerminal hook
 const useTerminal = () => {
