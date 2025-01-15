@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image'; // Import the Image component
 import { useRouter } from 'next/router';
-import { twMerge } from 'tailwind-merge';
 import Modal from 'react-modal';
 import { authService } from '@/utils/authService'; // Import the authService
 import { generateNodeName } from '@/utils/generateNodeName';
@@ -23,7 +23,7 @@ declare global {
 }
 
 export function Header() {
-  const { asPath, push } = useRouter();
+  const { push } = useRouter(); // Removed asPath since it's unused
   const [nodeName, setNodeName] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false); // Track authentication status
@@ -106,10 +106,12 @@ export function Header() {
               className="flex items-center justify-center w-8 h-8 rounded-full focus:outline-none border border-[#00fff2] shadow-[0_0_20px_rgba(0,255,242,0.2)]"
             >
               {isAuthenticated && userAvatar ? (
-                <img
+                <Image
                   src={userAvatar}
                   alt="User Avatar"
-                  className="w-6 h-6 rounded-full"
+                  width={24}
+                  height={24}
+                  className="rounded-full"
                 />
               ) : (
                 <span className="text-white">?</span> // Display "?" when no user is signed in
