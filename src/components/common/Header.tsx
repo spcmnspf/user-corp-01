@@ -7,15 +7,6 @@ import { authService } from '@/utils/authService'; // Import the authService
 import { generateNodeName } from '@/utils/generateNodeName';
 import { useUserAvatarUrl } from '@nhost/react'; // Import the hook from Nhost
 
-// Extend the User type to include user_metadata
-type User = {
-  id: string;
-  email?: string;
-  user_metadata?: {
-    avatar_url?: string;
-  };
-};
-
 declare global {
   interface Window {
     openLoginModal: () => void;
