@@ -6,6 +6,15 @@ import Modal from 'react-modal';
 import { authService } from '@/utils/authService'; // Import the authService
 import { generateNodeName } from '@/utils/generateNodeName';
 
+// Extend the User type to include user_metadata
+type User = {
+  id: string;
+  email?: string;
+  user_metadata?: {
+    avatar_url?: string;
+  };
+};
+
 declare global {
   interface Window {
     openLoginModal: () => void;
@@ -18,6 +27,8 @@ export function Header() {
   const [nodeName, setNodeName] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false); // Track authentication status
+  const [userAvatar, setUserAvatar] = useState<string | null>(null); // Track user avatar
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Track dropdown state
 
   useEffect(() => {
     setNodeName(generateNodeName());
@@ -41,9 +52,17 @@ export function Header() {
 
   // Subscribe to authentication state changes
   useEffect(() => {
-    const unsubscribe = authService.onAuthStateChanged((authenticated) => {
-      setIsAuthenticated(authenticated);
-    });
+    const updateAuthStatus = () => {
+      setIsAuthenticated(authService.isAuthenticated);
+      const user = authService.currentUser as User | null; // Cast to the extended User type
+      setUserAvatar(user?.user_metadata?.avatar_url || null); // Safely access user_metadata
+    };
+
+    // Initial check
+    updateAuthStatus();
+
+    // Listen for auth state changes
+    const unsubscribe = authService.onAuthStateChanged(updateAuthStatus);
 
     // Cleanup the listener on unmount
     return () => unsubscribe();
@@ -66,6 +85,10 @@ export function Header() {
     }
   };
 
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen); // Toggle dropdown visibility
+  };
+
   return (
     <header className="sticky border-b bg-header border-b-brd">
       <div className="flex flex-row max-w-5xl p-4 mx-auto place-content-between">
@@ -75,43 +98,59 @@ export function Header() {
           </a>
         </Link>
 
-        <nav className="self-center hidden md:block" aria-label="Main navigation">
-          <ul className="grid items-center w-full grid-flow-col gap-2 text-sm font-medium list-none text-list">
-            <li
-              className={twMerge(
-                'hover:text-white',
-                asPath === '/about' && 'text-white',
-              )}
+        <div className="flex items-center gap-4">
+          {/* Status Indicator and Dropdown */}
+          <div className="relative">
+            <button
+              onClick={toggleDropdown}
+              className="flex items-center justify-center w-8 h-8 rounded-full focus:outline-none border border-[#00fff2] shadow-[0_0_20px_rgba(0,255,242,0.2)]"
             >
-              <Link href="/about" passHref legacyBehavior>
-                <a className="px-2">About</a>
-              </Link>
-            </li>
-          </ul>
-        </nav>
+              {isAuthenticated && userAvatar ? (
+                <img
+                  src={userAvatar}
+                  alt="User Avatar"
+                  className="w-6 h-6 rounded-full"
+                />
+              ) : (
+                <span className="text-white">?</span> // Display "?" when no user is signed in
+              )}
+            </button>
 
-        <div className="flex">
-          {isAuthenticated && (
-            <div className="grid items-center grid-flow-col gap-2 md:gap-4">
-              <button
-                onClick={handleLogout} // Use handleLogout for sign-out
-                className="flex items-center self-end justify-center w-full px-2 py-1 text-xs transition-colors duration-200 border rounded-md text-list hover:border-white hover:text-white border-list"
-              >
-                Sign Out
-              </button>
-            </div>
-          )}
+            {/* Dropdown Menu */}
+            {isDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-header border border-brd rounded-md shadow-lg">
+                {/* About Page Link */}
+                <Link href="/about" passHref legacyBehavior>
+                  <a
+                    className="block w-full px-4 py-2 text-sm text-left text-list hover:bg-brd hover:text-white"
+                    onClick={() => setIsDropdownOpen(false)} // Close dropdown after clicking
+                  >
+                    About
+                  </a>
+                </Link>
 
-          {!isAuthenticated && (
-            <div className="grid items-center grid-flow-col gap-2 md:gap-4">
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="flex items-center self-end justify-center w-full px-2 py-1 text-xs transition-colors duration-200 border rounded-md text-list hover:border-white hover:text-white border-list"
-              >
-                Login
-              </button>
-            </div>
-          )}
+                {/* Login/Logout Button */}
+                {isAuthenticated ? (
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full px-4 py-2 text-sm text-left text-list hover:bg-brd hover:text-white"
+                  >
+                    Sign Out
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setIsModalOpen(true);
+                      setIsDropdownOpen(false); // Close dropdown after clicking
+                    }}
+                    className="block w-full px-4 py-2 text-sm text-left text-list hover:bg-brd hover:text-white"
+                  >
+                    Login
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
