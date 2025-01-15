@@ -115,11 +115,9 @@ export const getCommands = (terminateSession: (print: (text: string, type?: stri
             hidden: true,
             action: (args, print) => {
               print('Redirecting to hack portal...');
-              if (typeof window !== 'undefined' && window.navigateToPage) {
-                setTimeout(() => {
-                  window.navigateToPage('/hack'); // Call the global navigation function after a delay
-                }, 1000); // 1-second delay
-              }
+              setTimeout(() => {
+                window.navigateToPage('/hack'); // Use the globally exposed function
+              }, 1000); // 1-second delay
             },
           },
           {
@@ -128,11 +126,9 @@ export const getCommands = (terminateSession: (print: (text: string, type?: stri
             hidden: true,
             action: (args, print) => {
               print('Redirecting to extract portal...');
-              if (typeof window !== 'undefined' && window.navigateToPage) {
-                setTimeout(() => {
-                  window.navigateToPage('/extract'); // Call the global navigation function after a delay
-                }, 1000); // 1-second delay
-              }
+              setTimeout(() => {
+                window.navigateToPage('/extract'); // Use the globally exposed function
+              }, 1000); // 1-second delay
             },
           },        
         ];
@@ -187,14 +183,6 @@ function getCurrentTime() {
 function getVersionInfo() {
     return `SassyOS ${data.version}\n\n  S)ecure\n  A)uthentication\n  S)ystem\n  S)ynced\n  Y)esterday\n\nBuild: ${data.build}`;
 }
-
-// function hackSystem() {
-//     console.log('Hacking system...');
-// }
-
-// function extractData() {
-//     console.log('Extracting data...');
-// }
 
 // Define the useTerminal hook
 const useTerminal = () => {
