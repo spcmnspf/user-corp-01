@@ -23,7 +23,7 @@ declare global {
 }
 
 export function Header() {
-  const { push } = useRouter(); // Removed asPath since it's unused
+  const { push } = useRouter();
   const [nodeName, setNodeName] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false); // Track authentication status
@@ -53,8 +53,8 @@ export function Header() {
   // Subscribe to authentication state changes
   useEffect(() => {
     const updateAuthStatus = () => {
-      setIsAuthenticated(authService.isAuthenticated);
       const user = authService.currentUser as User | null; // Cast to the extended User type
+      setIsAuthenticated(authService.isAuthenticated);
       setUserAvatar(user?.user_metadata?.avatar_url || null); // Safely access user_metadata
     };
 
