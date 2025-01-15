@@ -7,7 +7,7 @@ class AuthService {
     this.listeners = []; // Array to hold listeners
     this.setupAuthListener();
   }
-
+// Adding a test deploy to see if the permissions reset.
   setupAuthListener() {
     if (typeof window !== 'undefined') {
       nhost.auth.onAuthStateChanged((event, session) => {
