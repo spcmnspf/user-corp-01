@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image'; // Import the Image component
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import Modal from 'react-modal';
 import { authService } from '@/utils/authService'; // Import the authService
 import { generateNodeName } from '@/utils/generateNodeName';
+import { useUserAvatarUrl } from '@nhost/react'; // Import the hook from Nhost
 
 // Extend the User type to include user_metadata
 type User = {
@@ -27,8 +28,10 @@ export function Header() {
   const [nodeName, setNodeName] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false); // Track authentication status
-  const [userAvatar, setUserAvatar] = useState<string | null>(null); // Track user avatar
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Track dropdown state
+
+  // Use the useUserAvatarUrl hook to get the avatar URL
+  const userAvatarUrl = useUserAvatarUrl();
 
   useEffect(() => {
     setNodeName(generateNodeName());
@@ -53,9 +56,7 @@ export function Header() {
   // Subscribe to authentication state changes
   useEffect(() => {
     const updateAuthStatus = () => {
-      const user = authService.currentUser as User | null; // Cast to the extended User type
       setIsAuthenticated(authService.isAuthenticated);
-      setUserAvatar(user?.user_metadata?.avatar_url || null); // Safely access user_metadata
     };
 
     // Initial check
@@ -105,9 +106,9 @@ export function Header() {
               onClick={toggleDropdown}
               className="flex items-center justify-center w-8 h-8 rounded-full focus:outline-none border border-[#00fff2] shadow-[0_0_20px_rgba(0,255,242,0.2)]"
             >
-              {isAuthenticated && userAvatar ? (
+              {isAuthenticated && userAvatarUrl ? (
                 <Image
-                  src={userAvatar}
+                  src={userAvatarUrl}
                   alt="User Avatar"
                   width={24}
                   height={24}

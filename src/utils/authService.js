@@ -1,4 +1,5 @@
 import { nhost } from './nhost';
+import { useUserAvatarUrl } from '@nhost/react'; // Import the hook from Nhost
 
 class AuthService {
   constructor() {
@@ -10,15 +11,9 @@ class AuthService {
 
   setupAuthListener() {
     if (typeof window !== 'undefined') {
-      nhost.auth.onAuthStateChanged((_, session) => {
-        if (session) {
-          this.currentUser = session.user;
-          this.isAuthenticated = true;
-        } else {
-          this.currentUser = null;
-          this.isAuthenticated = false;
-        }
-        this.updateStatusIndicator();
+      nhost.auth.onAuthStateChanged((event, session) => {
+        this.currentUser = session?.user || null;
+        this.isAuthenticated = !!session;
         this.notifyListeners(); // Notify all listeners when auth state changes
       });
     }
@@ -62,36 +57,8 @@ class AuthService {
 
       this.currentUser = null;
       this.isAuthenticated = false;
-      this.updateStatusIndicator();
     } catch (error) {
       console.error('Logout failed:', error.message);
-    }
-  }
-
-  setupStatusIndicator() {
-    if (typeof window !== 'undefined') {
-      const indicator = document.createElement('div');
-      indicator.id = 'auth-status';
-      indicator.className = 'auth-status';
-      document.body.appendChild(indicator);
-      this.updateStatusIndicator();
-    }
-  }
-
-  updateStatusIndicator() {
-    if (typeof window !== 'undefined') {
-      const indicator = document.getElementById('auth-status');
-      if (!indicator) return;
-
-      if (this.currentUser) {
-        indicator.innerHTML = `
-          <img src="${this.currentUser.user_metadata.avatar_url}" 
-               alt="Google" 
-               title="Logged in via Google">
-        `;
-      } else {
-        indicator.innerHTML = '<span class="not-logged-in">?</span>';
-      }
     }
   }
 }
