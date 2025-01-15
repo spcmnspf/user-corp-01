@@ -1,5 +1,4 @@
 import { nhost } from './nhost';
-import { useUserAvatarUrl } from '@nhost/react'; // Import the hook from Nhost
 
 class AuthService {
   constructor() {
