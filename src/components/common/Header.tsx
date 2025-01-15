@@ -1,25 +1,23 @@
-import { useAuthenticationStatus, useSignOut } from '@nhost/react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { twMerge } from 'tailwind-merge';
-import { useEffect, useState } from 'react';
 import Modal from 'react-modal';
-import { nhost } from '@/utils/nhost';
+import { authService } from '@/utils/authService'; // Import the authService
 import { generateNodeName } from '@/utils/generateNodeName';
 
 declare global {
   interface Window {
     openLoginModal: () => void;
-    navigateToPage: (path: string) => void; // Add this line
+    navigateToPage: (path: string) => void;
   }
 }
 
 export function Header() {
-  const { asPath, push } = useRouter(); // Use `push` from useRouter
-  const { isLoading, isAuthenticated } = useAuthenticationStatus();
-  const { signOut } = useSignOut();
+  const { asPath, push } = useRouter();
   const [nodeName, setNodeName] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // Track authentication status
 
   useEffect(() => {
     setNodeName(generateNodeName());
@@ -37,18 +35,34 @@ export function Header() {
 
     // Expose the function to navigate to a specific page globally
     window.navigateToPage = (path: string) => {
-      push(path); // Use the router to navigate to the specified path
+      push(path);
     };
-  }, [push]); // Add `push` as a dependency
+  }, [push]);
+
+  // Subscribe to authentication state changes
+  useEffect(() => {
+    const unsubscribe = authService.onAuthStateChanged((authenticated) => {
+      setIsAuthenticated(authenticated);
+    });
+
+    // Cleanup the listener on unmount
+    return () => unsubscribe();
+  }, []);
 
   const handleLogin = async () => {
     try {
-      await nhost.auth.signIn({
-        provider: 'google',
-      });
+      await authService.signInWithGoogle(); // Use authService for Google login
       setIsModalOpen(false);
     } catch (error) {
       console.error('Error during sign-in:', error);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await authService.logout(); // Use authService for logout
+    } catch (error) {
+      console.error('Error during sign-out:', error);
     }
   };
 
@@ -61,10 +75,7 @@ export function Header() {
           </a>
         </Link>
 
-        <nav
-          className="self-center hidden md:block"
-          aria-label="Main navigation"
-        >
+        <nav className="self-center hidden md:block" aria-label="Main navigation">
           <ul className="grid items-center w-full grid-flow-col gap-2 text-sm font-medium list-none text-list">
             <li
               className={twMerge(
@@ -83,7 +94,7 @@ export function Header() {
           {isAuthenticated && (
             <div className="grid items-center grid-flow-col gap-2 md:gap-4">
               <button
-                onClick={signOut}
+                onClick={handleLogout} // Use handleLogout for sign-out
                 className="flex items-center self-end justify-center w-full px-2 py-1 text-xs transition-colors duration-200 border rounded-md text-list hover:border-white hover:text-white border-list"
               >
                 Sign Out
@@ -91,7 +102,7 @@ export function Header() {
             </div>
           )}
 
-          {!isAuthenticated && !isLoading && (
+          {!isAuthenticated && (
             <div className="grid items-center grid-flow-col gap-2 md:gap-4">
               <button
                 onClick={() => setIsModalOpen(true)}
@@ -101,8 +112,6 @@ export function Header() {
               </button>
             </div>
           )}
-
-          {isLoading && <div className="w-16" />}
         </div>
       </div>
 
@@ -120,10 +129,10 @@ export function Header() {
         }}
         style={{
           overlay: {
-            zIndex: 1000, // Set a higher z-index for the overlay
+            zIndex: 1000,
           },
           content: {
-            zIndex: 1001, // Set a higher z-index for the modal content
+            zIndex: 1001,
           },
         }}
       >
